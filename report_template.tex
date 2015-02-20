@@ -1,9 +1,16 @@
 \documentclass[$if(fontsize)$$fontsize$,$endif$$if(lang)$$lang$,$endif$$if(papersize)$$papersize$,$endif$$for(classoption)$$classoption$$sep$,$endfor$]{$documentclass$}
+
+% Custom Packages
 \usepackage{algpseudocode}
 \usepackage{algorithm}
 \usepackage{algorithmicx}
+
+\usepackage{datetime}
+
+% Custom Commands
 \algnewcommand{\LineComment}[1]{\State \(\triangleright\) #1}
 \newcommand{\eqdef}{\overset{\mathrm{def}}{=\joinrel=}}
+
 $if(fontfamily)$
 \usepackage{$fontfamily$}
 $else$
@@ -142,7 +149,7 @@ $endif$
 $if(author)$
 \author{$for(author)$$author$$sep$ \and $endfor$}
 $endif$
-\date{$date$}
+\date{\today}
 $for(header-includes)$
 $header-includes$
 $endfor$

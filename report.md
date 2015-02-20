@@ -1,7 +1,6 @@
 ---
 title: Learning Context-Free Languages
 author: Ashok Menon
-date: February 13, 2015
 abstract: |
   Lorem Ipsum
 ...
