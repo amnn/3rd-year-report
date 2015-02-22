@@ -2,7 +2,7 @@ PARAMS =
 
 all: report.pdf
 
-%.tex: %.md %_template.tex
+%.tex: %.md %_template.tex references.bib
 	pandoc  --template=$*_template.tex \
 		--variable monofont=Menlo \
 		--latex-engine=xelatex \
@@ -16,7 +16,7 @@ all: report.pdf
 count: report.tex
 	texcount out/report.tex
 
-%.pdf: %.tex
+%.pdf: %.tex references.bib
 	latex -output-directory=out out/$*
 	bibtex out/$*
 	latex -output-directory=out out/$*
