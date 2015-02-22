@@ -15,6 +15,7 @@ count: report.tex
 %.pdf: %.md %_template.tex
 	pandoc  --template=$*_template.tex \
 		--latex-engine=xelatex \
+		--number-sections \
 		--variable monofont=Menlo \
 		$(PARAMS) \
 		$< -o $@

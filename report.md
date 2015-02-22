@@ -15,12 +15,25 @@ abstract: |
 \pagebreak
 
 # Introduction
+Language inference is a fairly mature topic, with Regular Languages in
+particular receiving much attention in the literature. Comparatively, the body
+of work regarding the inference of Context-Free Languages is sparser. This
+disparity could (fairly) be attributed to the added complexity that comes from
+attempting to learn a language by inferring its Context-Free Grammar: It is
+often useful to not only learn the language, but also a grammar with favourable
+structural properties that recognises it.
+
+Various papers --- which we will explore in Section\ \ref{survey} --- have
+addressed this issue by restricting themselves to various subsets of the
+Context-Free Languages. In this project, I attempt to avoid such restrictions by
+learning \textit{just} the language, whilst trying to make as few assumptions as
+possible about the structure of the grammar that we want to represent it.
 
 # Background
 
 # Technology
 
-# Survey
+# Survey {#survey}
 
 # Angluin's K-Bounded Algorithm
 
