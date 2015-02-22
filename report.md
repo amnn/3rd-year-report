@@ -43,7 +43,51 @@ structure of the grammar that should be produced, one can avoid restricting the
 set of learnable languages.
 
 # Background
-words
+\textit{The definitions in this section are standard, and can be found in detail
+in the appropriate sections of\ \cite{Sipser:1996:ITC:524279}.}
+
+\vbox{
+\begin{definition}[alphabet]
+An \textit{alphabet} is a set of symbols, $\Sigma$.
+\end{definition}
+}
+
+\vbox{
+\begin{definition}[string]
+A \textit{string} is an ordered sequence of symbols.
+We use $\varepsilon$ to represent the empty string.
+\end{definition}
+}
+
+\vbox{
+\begin{definition}[Kleene star]
+The \textit{Kleene star} of an alphabet, $\Sigma^*$ is then defined as the
+set of all finite strings of symbols in $\Sigma$:
+$$
+\Sigma^* \equiv \{w_0w_1\ldots w_k : w_i \in \Sigma, k \geq 0, 0 \leq i \leq k\}
+$$
+\end{definition}
+}
+
+\vbox{
+\begin{definition}[language]
+A \textit{language}, in turn, is a subset of the Kleene star over an alphabet,
+$L \subseteq \Sigma^*$.
+\end{definition}
+}
+
+\vbox{
+\begin{definition}[context-free grammar]
+A \textit{context-free grammar} is a 4-tuple
+$G = (N,\Sigma,\mathcal{R},S)$, for
+\begin{itemize*}
+\item $N$, a finite set of \textit{non-terminals}.
+\item $\Sigma$, a finite \textit{alphabet}.
+\item $\mathcal{R} : N\times{(\Sigma \cup N)}^*$, a finite set of \textit{productions}.
+\item $S \in N$, a start state.
+\end{itemize*}
+\end{definition}
+}
 
 # Technology
 

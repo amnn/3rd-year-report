@@ -7,9 +7,16 @@
 
 \usepackage{datetime}
 
+\usepackage{mdwlist}
+
+\usepackage{amsthm}
+
 % Custom Commands
 \algnewcommand{\LineComment}[1]{\State \(\triangleright\) #1}
 \newcommand{\eqdef}{\overset{\mathrm{def}}{=\joinrel=}}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
 
 $if(fontfamily)$
 \usepackage{$fontfamily$}
