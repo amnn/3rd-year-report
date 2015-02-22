@@ -5,17 +5,19 @@ all: report.pdf
 %.tex: %.md %_template.tex
 	pandoc  --template=$*_template.tex \
 		--variable monofont=Menlo \
-		$(PARAMS) \
-		-f markdown -t latex \
-		$< -o $@
-
-count: report.tex
-	texcount report.tex
-
-%.pdf: %.md %_template.tex
-	pandoc  --template=$*_template.tex \
 		--latex-engine=xelatex \
 		--number-sections \
-		--variable monofont=Menlo \
+		--bibliography=references.bib \
+		--natbib \
 		$(PARAMS) \
-		$< -o $@
+		-f markdown -t latex \
+		$< -o out/$@
+
+count: report.tex
+	texcount out/report.tex
+
+%.pdf: %.tex
+	latex -output-directory=out out/$*
+	bibtex out/$*
+	latex -output-directory=out out/$*
+	pdflatex -output-directory=out out/$*
