@@ -43,85 +43,168 @@ structure of the grammar that should be produced, one can avoid restricting the
 set of learnable languages.
 
 # Background
+words
 
 # Technology
 
+words
+
 # Survey {#survey}
+
+words
 
 # Angluin's K-Bounded Algorithm
 
+words
+
 ## Algorithm
+
+words
 
 ## Restriction to Chomsky Reduced Form
 
+words
+
 # A Sampling Oracle
+
+words
 
 ## Pruning a Context-Free Grammar
 
+words
+
 ### Contribution and \textsc{HornSAT}
+
+words
 
 ## Enumerating a Context-Free Language
 
+words
+
 ### A Modified Earley Parser
+
+words
 
 ### Nullity and \textsc{HornSAT}
 
+words
+
 ## Parsing CRF Grammars
 
+words
+
 ## Algorithm
+
+words
 
 # Compensating for an Imperfect Oracle
 
+words
+
 ## Strong Consistency
+
+words
 
 ### \textsc{BestRules}
 
+words
+
 ## Online Kernel Logistic Regression
+
+words
 
 ## Loosening the CRF Restriction
 
+words
+
 ## Algorithm
+
+words
 
 # Analysis
 
+words
+
 ## Maximal Ambiguity
+
+words
 
 ## Test Cases
 
+words
+
 ### ${(ab)}^+$
+
+words
 
 ### $a^{n}b^{n}$
 
+words
+
 ### $a^{n}b^{m}c^{n+m}$
+
+words
 
 ### Balanced Parantheses
 
+words
+
 ### Mathematical Expressions
+
+words
 
 # Discussion
 
+words
+
 ## Choosing Non-Terminals
+
+words
 
 ## Kernels
 
+words
+
 ## Learning SCFGs
+
+words
 
 ## Component Analysis
 
+words
+
 ## Disambiguation
+
+words
 
 # Acknowledgements
 
+words
+
 # References
+
+\bibliography{references}
 
 # Appendix A <!-- Subsidiary Listings -->
 
+words
+
 ## Representing CFGs
+
+words
 
 ## Representing SCFGs
 
+words
+
 ## \textsc{HornSAT}
+
+words
 
 ## Strongly Connected Components
 
+words
+
 # Appendix B <!-- Tests -->
+
+test
