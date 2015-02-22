@@ -2,7 +2,15 @@
 title: Learning Context-Free Languages
 author: Ashok Menon
 abstract: |
-  Lorem Ipsum
+  This project aims to produce an interactive learning algorithm for
+  Context-Free Languages. To this end, I modify Angluin's \textit{k-bounded
+  learning algorithm} --- an algorithm for learning a subset of Context-Free
+  Grammars, with the use of an Oracle. The work is split between designing a
+  model for the Oracle that is conducive to interaction and modifying the
+  algorithm itself to take advantage of certain restrictions that we can afford
+  to make. In the end I measure the cost of accounting for errors by comparing
+  two variants of the algorithm: One that assumes a perfect human Oracle, and
+  one that is fault-tolerant.
 ...
 \pagebreak
 
