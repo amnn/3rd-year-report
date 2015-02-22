@@ -52,7 +52,7 @@ set of learnable languages.
 
 ## Algorithm
 
-## Restriction to Chomsky Normal Form
+## Restriction to Chomsky Reduced Form
 
 # A Sampling Oracle
 
@@ -66,7 +66,7 @@ set of learnable languages.
 
 ### Nullity and \textsc{HornSAT}
 
-## Parsing CNF Grammars
+## Parsing CRF Grammars
 
 ## Algorithm
 
@@ -78,7 +78,7 @@ set of learnable languages.
 
 ## Online Kernel Logistic Regression
 
-## Loosening the CNF Restriction
+## Loosening the CRF Restriction
 
 ## Algorithm
 
