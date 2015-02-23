@@ -47,46 +47,106 @@ set of learnable languages.
 in the appropriate sections of\ \cite{Sipser:1996:ITC:524279}.}
 
 \vbox{
-\begin{definition}[alphabet]
-An \textit{alphabet} is a set of symbols, $\Sigma$.
-\end{definition}
+  \begin{definition}[alphabet]
+    An \textit{alphabet} is a set of symbols, $\Sigma$.
+  \end{definition}
 }
 
 \vbox{
-\begin{definition}[string]
-A \textit{string} is an ordered sequence of symbols.
-We use $\varepsilon$ to represent the empty string.
-\end{definition}
+  \begin{definition}[string]
+    A \textit{string} is an ordered sequence of symbols.
+    We use $\varepsilon$ to represent the empty string.
+  \end{definition}
 }
 
 \vbox{
-\begin{definition}[Kleene star]
-The \textit{Kleene star} of an alphabet, $\Sigma^*$ is then defined as the
-set of all finite strings of symbols in $\Sigma$:
-$$
-\Sigma^* \equiv \{w_0w_1\ldots w_k : w_i \in \Sigma, k \geq 0, 0 \leq i \leq k\}
-$$
-\end{definition}
+  \begin{definition}[Kleene star]
+    The \textit{Kleene star} of an alphabet, $\Sigma^*$ is then defined as the
+    set of all finite strings of symbols in $\Sigma$:
+    $$
+    \Sigma^* \equiv \{w_0w_1\ldots w_k : w_i \in \Sigma, k \geq 0, 0 \leq i \leq k\}
+    $$
+  \end{definition}
 }
 
 \vbox{
-\begin{definition}[language]
-A \textit{language}, in turn, is a subset of the Kleene star over an alphabet,
-$L \subseteq \Sigma^*$.
-\end{definition}
+  \begin{definition}[language]
+    A \textit{language}, in turn, is a subset of the Kleene star over an alphabet,
+    $L \subseteq \Sigma^*$.
+  \end{definition}
+}
+
+## Context-Free Grammars
+
+\vbox{
+  \begin{definition}[context-free grammar]
+    A \textit{context-free grammar} is a 4-tuple
+    $G = (N,\Sigma,\mathcal{R},S)$, for
+    \begin{itemize*}
+    \item $N$, a finite set of \textit{non-terminals}.
+    \item $\Sigma$, a finite \textit{alphabet} (also called \textit{terminals})
+    \item $\mathcal{R} : N\times{(\Sigma \cup N)}^*$, a finite set of
+      \textit{productions}, of the form $X \rightarrow \alpha$ for some
+      non-terminal $X$, and string of terminals/non-terminals $\alpha$.
+    \item $S \in N$, a start state.
+    \end{itemize*}
+  \end{definition}
+}
+
+Suppose, w.r.t. grammar $G = (N,\Sigma,\mathcal{R},S)$ we define the relations
+\begin{align*}
+  \alpha X \gamma &\Rightarrow \alpha\beta\gamma
+  &\iff X \rightarrow \beta \in \mathcal{R}
+  \tag*{$\forall\alpha,\beta,\gamma\in{(\Sigma\cup{}N)}^{*}$} \\
+  \alpha X \gamma &\Rightarrow_l \alpha\beta\gamma
+  &\iff X \rightarrow \beta \in \mathcal{R}
+  \tag*{$\forall\alpha\in\Sigma^*,\beta,\gamma\in{(\Sigma\cup{}N)}^{*}$}
+\end{align*}
+With reflexive transitive closures $\cdot\Rightarrow^*\cdot$ and
+$\cdot\Rightarrow_l^*\cdot$ respectively. Then we may say
+$\alpha$ \textit{yields} $\beta$ iff $\alpha \Rightarrow \beta$,
+$\alpha$ \textit{derives} $\beta$ iff $\alpha \Rightarrow^* \beta$,
+and $\alpha$ \textit{left-most derives} $\beta$ iff
+$\alpha \Rightarrow_l^* \beta$.
+
+Every left-most derivation also uniquely defines a \textit{parse tree}. A parse
+tree $t$ for grammar $G$ deriving a string $w$ is a tree with
+
+ * Elements of $N$ as internal nodes.
+ * $S$ as its root.
+ * Elements of $\Sigma$ as leaf nodes s.t. their in-order traversal produces $w$.
+
+Furthermore, a node $X$ in $t$ has children $c_1c_2\ldots{}c_k = c$ iff
+$X \rightarrow c \in \mathcal{R}$.
+
+\vbox{
+  \begin{definition}[$L(\cdot)$]
+    The \textit{language of $G$} is given by
+    $$
+    L(G) = \{w\in\Sigma^*:S\Rightarrow^*w\}
+    $$
+  \end{definition}
 }
 
 \vbox{
-\begin{definition}[context-free grammar]
-A \textit{context-free grammar} is a 4-tuple
-$G = (N,\Sigma,\mathcal{R},S)$, for
-\begin{itemize*}
-\item $N$, a finite set of \textit{non-terminals}.
-\item $\Sigma$, a finite \textit{alphabet}.
-\item $\mathcal{R} : N\times{(\Sigma \cup N)}^*$, a finite set of \textit{productions}.
-\item $S \in N$, a start state.
-\end{itemize*}
-\end{definition}
+  \begin{definition}[ambiguity]
+    A grammar $G$ is \textit{ambiguous} if for some $w\in\Sigma^*$, There is
+    more than one left-most derivation of $w$ from $S$.  Otherwise $G$ is
+    \textit{unambiguous}.
+  \end{definition}
+}
+
+\vbox{
+  \begin{definition}[Chomsky Reduced Form]
+    A grammar $G$ is in \textit{Chomsky Reduced Form} (CRF) if all of its rules
+    are in one of two forms:
+    \begin{align*}
+      A &\rightarrow BC \tag*{$\forall A,B,C \in N$}\\
+      A &\rightarrow \alpha \tag*{$\forall A \in N, \alpha\in\Sigma$}
+    \end{align*}
+    Observe that grammars in CRF can generate any language that does not contain
+    $\varepsilon$.
+  \end{definition}
 }
 
 # Technology
