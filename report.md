@@ -153,6 +153,114 @@ $X\rightarrow\alpha\in\mathcal{R}$.
   \end{definition}
 }
 
+## Stochastic Context-Free Grammars
+\textit{The definitions from here onwards can be found explained in greater
+  detail in the appropariate sections of\ \cite{Manning:1999:FSN:311445}.}
+
+\vbox{
+  \begin{definition}[stochastic context-free grammar]
+    A \textit{stochastic context-free grammar} (SCFG) is a 5-tuple
+    $G = (N,\Sigma,\mathcal{R},S,\mathit{p_R})$, for
+    \begin{itemize*}
+    \item $N, \Sigma, \mathcal{R}, S$, as defined in
+      Definition\ \ref{context-free grammar}.
+    \item $p_R : \mathcal{R} \rightarrow \mathbb{R}^+$ A mapping from rules to
+      probabilities s.t.
+      \begin{align*}
+        \sum_{X \rightarrow \alpha \in \mathcal{R}}{p_{X \rightarrow \alpha}}
+        &= 1 \tag*{$\forall X \in N$}
+      \end{align*}
+    \end{itemize*}
+  \end{definition}
+}
+
+As the first four elements of the 5-tuple representing an SCFG are analogous to
+the definition of a CFG, all the definitions from the previous section also
+apply here. In addition, SCFGs define a probability distribution over
+$\Sigma^*$.
+
+\vbox{
+  \begin{definition}[probability of a derivation]
+    Given a derivation $\alpha_0 \Rightarrow^* \alpha_n$
+    $$
+    \alpha_0
+    \overset{R_1}{\Rightarrow} \alpha_1
+    \overset{R_2}{\Rightarrow}\dotsb
+    \overset{R_n}{\Rightarrow} \alpha_n
+    $$
+
+    Where we take $\alpha_i \overset{R_{i+1}}{\Rightarrow} \alpha_{i+1}$ to mean
+    that we yield $\alpha_{i+1}$ from $\alpha_{i}$ by applying some rule
+    $R_{i+1} \in \mathcal{R}$, to a non-terminal in $\alpha_i$.
+
+    We take the \textit{derivation probability} to be
+
+    $$
+    \mathbb{P}(\alpha_0 \Rightarrow^* \alpha_n) \equiv \prod_{i=1}^n{p_{R_i}}
+    $$
+  \end{definition}
+}
+
+\vbox{
+  \begin{definition}[total probability]
+    The \textit{total probability} of deriving a string $\beta$ given a
+    starting string $\alpha$, written $\mathbb{P}(\beta | \alpha)$, is the sum
+    of the probabilities of all left-most derivations starting at $\alpha$,
+    deriving $\beta$.
+    \begin{align*}
+    \mathbb{P}(w|\alpha) \equiv
+    \sum_{\alpha \Rightarrow_l \alpha_1 \Rightarrow_l\dotsb\Rightarrow_l \beta}{
+      \mathbb{P}(\alpha \Rightarrow_l \alpha_1
+      \Rightarrow_l\dotsb\Rightarrow_l \beta)
+    }
+    \tag*{$\forall\alpha,\beta\in(\Sigma\cup{}N)^*$}
+    \end{align*}
+
+  \end{definition}
+}
+
+\vbox{
+  \begin{definition}[inside probability]
+    The \textit{inside probability} of deriving a string $w\in\Sigma^*$ given an
+    $X\in{}N$ is simply $\mathbb{P}(w|X)$.
+  \end{definition}
+}
+
+\vbox{
+  \begin{definition}[outside probability]
+    For completeness, we also define the \textit{outside probability} of
+    $\alpha\in(\Sigma\cup{}N)^*$ as $\mathbb{P}(\alpha|S)$.
+  \end{definition}
+}
+
+\vbox{
+  \begin{definition}[probability distribution]
+    A stochastic grammar $G$ defines a distribution $D_G$ over $w\in\Sigma^*$
+    s.t.
+    \begin{align*}
+      \mathbb{P}(W = w) \equiv \mathbb{P}(w|S)
+      \tag*{$W\sim{}D_G$}
+    \end{align*}
+    Such a distribution is said to be \textit{consistent} iff
+    $$
+    \sum_{w\in\Sigma^*}\mathbb{P}(W = w) = 1
+    $$
+    And is \textit{inconsistent} otherwise.
+  \end{definition}
+}
+
+\vbox{
+  \begin{definition}[most likely parse]
+    The \textit{most likely parse} of a string $w$ by a stochastic grammar $G$,
+    is the left-most derivation of highest probability from $S$ to $w$.
+    $$
+    \operatorname*{arg\,max}_{S \Rightarrow_l \alpha_1 \Rightarrow_l\dotsb\Rightarrow_l w}{
+      \mathbb{P}(S \Rightarrow_l \alpha_1 \Rightarrow_l\dotsb\Rightarrow_l w)
+    }
+    $$
+  \end{definition}
+}
+
 # Technology
 
 words
