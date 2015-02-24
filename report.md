@@ -263,7 +263,66 @@ $\Sigma^*$.
 
 # Technology
 
-words
+## Language and Runtime
+The implementation of this project will be written in \textit{Clojure}, a LISP
+dialect that runs on the JVM. I chose \textit{Clojure} for its
+
+ * Strong but practical focus on functional programming paradigms.
+ * Access to the large echosystem of Java libraries.
+ * Read-Eval-Print Loop (REPL), which affords an interactive development
+   workflow.
+ * Macro system, which allows for the creation of embedded Domain-Specific
+   Languages (DSL).
+
+## Libraries
+The wealth of libraries written in and for \textit{Clojure} allow me to focus on
+the main ideas of the project, without being distracted by the definitions of
+ancillary functions. In this section, I outline the dependencies used in the
+project.
+
+\phantomsection{}
+\addcontentsline{toc}{subsubsection}{\texttt clojure.data/priority-map}
+\subsubsection*{\texttt{clojure.data/priority-map} \\
+  \small{\cite{clojure_data_prioritymap}}}
+
+An ordered key-value data structure sorted by its value, with a uniqueness
+constraint on keys. Used in situations similar to a heap.
+
+\phantomsection{}
+\addcontentsline{toc}{subsubsection}{\texttt bigml/sampling}
+\subsubsection*{\texttt{bigml/sampling} \\
+  \small{\cite{bigml_sampling}}}
+
+A library of sampling functions, for picking random elements from both finite
+collections and infinite streams.
+
+\phantomsection{}
+\addcontentsline{toc}{subsubsection}{\texttt net.mikera/core.matrix}
+\subsubsection*{\texttt{net.mikera/core.matrix} \\
+  \small{\cite{net_mikera_core_matrix}}}
+
+A language extension to \textit{Clojure} adding generalised N-dimensional array
+programming protocols. By default these protocols are only implemented by the
+standard library collections which are not well-suited to array programming
+operations.
+
+\phantomsection{}
+\addcontentsline{toc}{subsubsection}{\texttt net.mikera/vectorz-clj}
+\subsubsection*{\texttt{net.mikera/vectorz-clj} \\
+  \small{\cite{net_mikera_vectorz_clj}}}
+
+\textit{Clojure} wrapper over the \textit{Vectorz} Java library. This provides a
+high performance implementation of the \texttt{core.matrix} protcols for
+arbitrary N-dimensional arrays.
+
+## Architecture
+Interaction with the software will be via a \textit{Clojure} REPL session. This
+approach allows for state to be saved in the session between invocations of the
+learning algorithms, making experimentation with parameters easier.
+
+\textit{Clojure} is a dynamically typed language, so verification will be, for
+the most part, in the form of unit tests. The tests for each module can be found
+in the Appendices.
 
 # Survey {#survey}
 
