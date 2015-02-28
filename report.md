@@ -36,11 +36,37 @@ careful in picking the subset of the context-free grammars to learn, one can
 guarantee that the algorithm always outputs an unambiguous grammar, as in
 \cite{Clark06pac-learningunambiguous}.
 
-In this project, I aim to make the distinction clear between learning the
-language and learning the grammar which represents it, and will focus almost
-entirely on the latter. By making as few assumptions as possible about the
-structure of the grammar that should be produced, one can avoid restricting the
-set of learnable languages.
+One could also focus on learning the language, without expecting any favourable
+properties from the grammar, which is the approach we will follow in this
+project. Starting from the algorithm proposed in\ \cite{angluin1987learning},
+which assumes only that a grammar is \textit{k-bounded}. Whilst this assumption
+restricts the learnable grammars, it does not restrict the learnable
+\textit{languages}, which we will later show.
+
+A major limitation of the algorithm, however, is that an \textit{oracle} is
+required, capable of answering queries that would normally be undecidable.
+Consequently, we cannot rely on purely automated responses to such queries, as
+to do so, the program providing the answers would already ``know too much''
+about the language we intend to learn.
+
+We overcome this hurdle in the most straightforward way possible: By making the
+learning process interactive. Allowing a user to act as the oracle effectively
+eliminates the strong restriction that the undecidable nature of the queries
+originally posed, but introduces new concerns. Firstly, if the user were able to
+answer the questions in the form they are asked by the algorithm, it is highly
+likely that they would easily be able construct a grammar to recognise the
+language themselves. In order that the learning algorithm provide some sort of
+utility then, one must somehow ask less of the user and construct the
+information needed from their responses. Secondly, we cannot presume that a user
+will always provide perfect answers, after all, ``to err is human''.
+
+In this project, I hope to show that these two new considerations are more
+manageable than the restriction they replace, by offering solutions to both.
+Moreover, I explore the cost of relying on user queries: Provided all parts of
+the algorithm are reasonably efficient (polynomial time complexity w.r.t size,
+let us say), the rate limiting step becomes the user. I take this into account
+when analysing variants of the algorithm by using a cost model in which the unit
+operation is a query to the user.
 
 # Background
 \textit{Most definitions in this section can be found in greater detail in the
