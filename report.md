@@ -167,7 +167,7 @@ $X\rightarrow\alpha\in\mathcal{R}$.
 }
 
 \vbox{
-  \begin{definition}[Chomsky Reduced Form]
+  \begin{definition}[Chomsky Reduced Form] \label{def_crf}
     $G$ is in \textit{Chomsky Reduced Form} (CRF) if all of its rules are in one
     of two forms:
     \begin{align*}
@@ -186,14 +186,14 @@ $X\rightarrow\alpha\in\mathcal{R}$.
 \vbox{
   \begin{definition}[stochastic context-free grammar]
     A \textit{stochastic context-free grammar} (SCFG) is a 5-tuple
-    $G = (N,\Sigma,\mathcal{R},S,\mathit{p_R})$, for
+    $G~=~(N,\Sigma,\mathcal{R},S,p)$, for
     \begin{itemize*}
     \item $N, \Sigma, \mathcal{R}, S$, as defined in
       Definition\ \ref{context-free grammar}.
-    \item $p_R : \mathcal{R} \rightarrow \mathbb{R}^+$ A mapping from rules to
-      probabilities s.t.
+    \item $p : \mathcal{R} \rightarrow \mathbb{R}^+$ A family of probability
+      mass functions, one for each $X \in \mathcal{R}$ s.t.
       \begin{align*}
-        \sum_{X \rightarrow \alpha \in \mathcal{R}}{p_{X \rightarrow \alpha}}
+        \sum_{X \rightarrow \alpha \in \mathcal{R}}{p_X(\alpha)}
         &= 1 \tag*{$\forall X \in N$}
       \end{align*}
     \end{itemize*}
@@ -207,41 +207,43 @@ $\Sigma^*$.
 
 \vbox{
   \begin{definition}[probability of a derivation]
-    Given a derivation $\alpha_0 \Rightarrow^* \alpha_n$
+    Given a stochastic grammar $G~=~(N,\Sigma,\mathcal{R},S,p)$,
+    and a derivation $\alpha_0 \Rightarrow^* \alpha_n$
     $$
     \alpha_0
     \overset{R_1}{\Rightarrow} \alpha_1
     \overset{R_2}{\Rightarrow}\dotsb
     \overset{R_n}{\Rightarrow} \alpha_n
     $$
-
     Where we take $\alpha_i \overset{R_{i+1}}{\Rightarrow} \alpha_{i+1}$ to mean
     that we yield $\alpha_{i+1}$ from $\alpha_{i}$ by applying some rule
-    $R_{i+1} \in \mathcal{R}$, to a non-terminal in $\alpha_i$.
+    $R_{i+1} = X_{i+1} \rightarrow \gamma_{i+1} \in \mathcal{R}$, to a
+    non-terminal in $\alpha_i$.
 
     We take the \textit{derivation probability} to be
-
     $$
-    \mathbb{P}(\alpha_0 \Rightarrow^* \alpha_n) \equiv \prod_{i=1}^n{p_{R_i}}
+    \mathbb{P}(\alpha_0 \Rightarrow^* \alpha_n | G) \equiv
+    \prod_{i=1}^n{p_{X_i}(\gamma_i)}
     $$
+    In cases where $G$ is obvious, it can be omitted.
   \end{definition}
 }
 
 \vbox{
   \begin{definition}[total probability]
     The \textit{total probability} of deriving a string $\beta$ given a
-    starting string $\alpha$, written $\mathbb{P}(\beta | \alpha)$, is the sum
-    of the probabilities of all left-most derivations starting at $\alpha$,
-    deriving $\beta$.
+    starting string $\alpha$, in $G$, written $\mathbb{P}(\beta | \alpha, G)$,
+    is the sum of the probabilities of all left-most derivations starting at
+    $\alpha$, deriving $\beta$.
     \begin{align*}
-    \mathbb{P}(w|\alpha) \equiv
+    \mathbb{P}(w|\alpha, G) \equiv
     \sum_{\alpha \Rightarrow_l \alpha_1 \Rightarrow_l\dotsb\Rightarrow_l \beta}{
       \mathbb{P}(\alpha \Rightarrow_l \alpha_1
-      \Rightarrow_l\dotsb\Rightarrow_l \beta)
+      \Rightarrow_l\dotsb\Rightarrow_l \beta | G)
     }
     \tag*{$\forall\alpha,\beta\in(\Sigma\cup{}N)^*$}
     \end{align*}
-
+    If the $G$ in question is obvious from the context, it is sometimes omitted.
   \end{definition}
 }
 
@@ -286,6 +288,9 @@ $\Sigma^*$.
     $$
   \end{definition}
 }
+
+It is worth noting that the previous observation in Definition\ \ref{def_crf}
+still holds for SCFGs.
 
 # Technology
 
