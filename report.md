@@ -171,8 +171,8 @@ $X\rightarrow\alpha\in\mathcal{R}$.
     $G$ is in \textit{Chomsky Reduced Form} (CRF) if all of its rules are in one
     of two forms:
     \begin{align*}
-      A &\rightarrow BC \tag*{$\forall A,B,C \in N$}\\
-      A &\rightarrow a \tag*{$\forall A \in N, a\in\Sigma$}
+      A &\rightarrow BC \tag*{$A,B,C \in N$}\\
+      A &\rightarrow a \tag*{$A \in N, a\in\Sigma$}
     \end{align*}
     Observe that grammars in CRF can generate any language that does not contain
     $\varepsilon$.
@@ -193,8 +193,7 @@ $X\rightarrow\alpha\in\mathcal{R}$.
     \item $p : \mathcal{R} \rightarrow \mathbb{R}^+$ A family of probability
       mass functions, one for each $X \in \mathcal{R}$ s.t.
       \begin{align*}
-        \sum_{X \rightarrow \alpha \in \mathcal{R}}{p_X(\alpha)}
-        &= 1 \tag*{$\forall X \in N$}
+        \sum_{X \rightarrow \alpha \in \mathcal{R}}{p_X(\alpha)} &= 1
       \end{align*}
     \end{itemize*}
   \end{definition}
@@ -222,7 +221,7 @@ $\Sigma^*$.
 
     We take the \textit{derivation probability} to be
     $$
-    \mathbb{P}(\alpha_0 \Rightarrow^* \alpha_n | G) \equiv
+    \mathbb{P}(\alpha_0 \Rightarrow^* \alpha_n \mid G) \equiv
     \prod_{i=1}^n{p_{X_i}(\gamma_i)}
     $$
     In cases where $G$ is obvious, it can be omitted.
@@ -232,14 +231,14 @@ $\Sigma^*$.
 \vbox{
   \begin{definition}[total probability]
     The \textit{total probability} of deriving a string $\beta$ given a
-    starting string $\alpha$, in $G$, written $\mathbb{P}(\beta | \alpha, G)$,
+    starting string $\alpha$, in $G$, written $\mathbb{P}(\beta \mid \alpha, G)$,
     is the sum of the probabilities of all left-most derivations starting at
     $\alpha$, deriving $\beta$.
     \begin{align*}
-    \mathbb{P}(w|\alpha, G) \equiv
+    \mathbb{P}(w\mid\alpha, G) \equiv
     \sum_{\alpha \Rightarrow_l \alpha_1 \Rightarrow_l\dotsb\Rightarrow_l \beta}{
       \mathbb{P}(\alpha \Rightarrow_l \alpha_1
-      \Rightarrow_l\dotsb\Rightarrow_l \beta | G)
+      \Rightarrow_l\dotsb\Rightarrow_l \beta \mid G)
     }
     \tag*{$\forall\alpha,\beta\in(\Sigma\cup{}N)^*$}
     \end{align*}
@@ -250,14 +249,14 @@ $\Sigma^*$.
 \vbox{
   \begin{definition}[inside probability]
     The \textit{inside probability} of deriving a string $w\in\Sigma^*$ given an
-    $X\in{}N$ is simply $\mathbb{P}(w|X)$.
+    $X\in{}N$ is simply $\mathbb{P}(w \mid X)$.
   \end{definition}
 }
 
 \vbox{
   \begin{definition}[outside probability]
     For completeness, we also define the \textit{outside probability} of
-    $\alpha\in(\Sigma\cup{}N)^*$ as $\mathbb{P}(\alpha|S)$.
+    $\alpha\in(\Sigma\cup{}N)^*$ as $\mathbb{P}(\alpha \mid S)$.
   \end{definition}
 }
 
@@ -266,7 +265,7 @@ $\Sigma^*$.
     A stochastic grammar $G$ defines a distribution $D_G$ over $w\in\Sigma^*$
     s.t.
     \begin{align*}
-      \mathbb{P}(W = w) \equiv \mathbb{P}(w|S)
+      \mathbb{P}(W = w) \equiv \mathbb{P}(w \mid S)
       \tag*{$W\sim{}D_G$}
     \end{align*}
     Such a distribution is said to be \textit{consistent} iff
@@ -357,9 +356,151 @@ in the Appendices.
 
 # Survey {#survey}
 
-words
+It follows from the results in\ \cite{Gold1967447} that it is impossible to
+learn context-free languages in the limit, using only positive and negative
+examples. And furthermore, it follows from\ \cite{Kearns:1994:CLL:174644.174647}
+that we cannot PAC learn CFLs using only positive and negative examples
+either. Various methods have been used to avoid these restrictions, such as
+leveraging structural information, or assuming properties of the grammar being
+learnt or the distribution the samples are coming from. In this section, we will
+briefly explore the specific techniques used in three different papers.
 
-# Angluin's K-Bounded Algorithm
+## Learning Unambiguous NTS Grammars
+
+In\ \cite{Clark06pac-learningunambiguous}, we assume three things: Firstly, the
+grammar must be unambiguous, secondly, the grammar is NTS (as defined below),
+and finally, the positive samples must be sampled from the distribution of some
+(unknown) SCFG.
+
+\vbox{
+  \begin{definition}[Non-Terminally Separated]\label{def_nts}
+    A grammar $G = (N,\Sigma,\mathcal{R},S)$ is
+    \textit{non-terminally separated} iff
+    \begin{align*}
+      \text{when}~& B\Rightarrow^*\beta \tag*{$\beta\in\Sigma^*,B \in N$} \\
+      \text{then}~& A \Rightarrow^* \alpha\beta\gamma
+                    \implies A \Rightarrow^* \alpha B \gamma
+      \tag*{$\forall \alpha, \gamma \in \Sigma^*, A \in N$}
+    \end{align*}
+    In other words, if we can derive some string $\beta$ from $B$ in $G$,
+    and $\beta$ appears as a substring of some other derivation, then it must,
+    in that derivation, be derived from $B$.
+  \end{definition}
+}
+
+By making the aforementioned assumptions, Clark is able to efficiently PAC learn
+this subset of the CFLs. The algorithm works by examining the contexts that
+strings appear in, within the corpus of samples provided. Essentially, strings
+that appear in the same context are derived from the same non-terminal in the
+grammar being learnt. Contexts can be used in this way due to the assumption
+that the samples are coming from an SCFG.
+
+The cost of these assumptions, however, is that certain trivial languages can no
+longer be presented: Take, for instance, the regular language described by
+$aa^*$. Clark shows that this language is not representable by an unambiguous
+NTS grammar: An NTS grammar that represents it must necessarily be ambiguous.
+
+## Efficient learning of context-free grammars from positive structural examples
+
+This algorithm, explained fully in \cite{Sakakibara199223}, makes use of
+``positive structural examples'' --- unlabeled parse trees --- from
+\textit{reversible} context-free grammars as well as structural membership and
+structural equivalence queries in the learning process.
+
+\vbox{
+  \begin{definition}[Reversible]
+    A grammar $G = (N,\Sigma,\mathcal{R},S)$ is \textit{reversible} if
+    \begin{align*}
+      &A\rightarrow\alpha, B\rightarrow\alpha\in\mathcal{R}
+      &\implies A = B \tag{1}\\
+      &A\rightarrow\alpha{}B\beta, A\rightarrow\alpha{}C\beta\in\mathcal{R}
+      &\implies B=C \tag{2}
+    \end{align*}
+  \end{definition}
+}
+
+There seem to be similarities between this definition and
+Definition\ \ref{def_nts} of NTS grammars, but it is only skin deep. In fact
+neither class of grammars is entirely contained within the other, as shown
+in Figure\ \ref{rev_nts_counter}.
+
+As explained in the paper, the restriction to \textit{reversible} grammars is
+not a restriction at all: \textit{Reversible} grammars are a normal form for
+context-free grammars. Therefore, this algorithm is capable of learning
+\textit{any} context-free language.
+
+While this seems to be a promising start point, the requirement for structural
+information in the samples and the membership queries is quite a powerful
+tool. As we will see in Section\ \ref{angluin}, we can make do with less, if we
+are not concerned with learning in the limit.
+
+\begin{figure}
+  \begin{subfigure}[t]{0.45\textwidth}
+
+    \begin{align*}
+      S &\rightarrow ab \mid S^\prime \\
+      S^\prime &\rightarrow Abc \\
+      A &\rightarrow a
+    \end{align*}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+
+    \begin{align*}
+      S &\rightarrow C \mid D \\
+      C &\rightarrow aB \mid d \\
+      D &\rightarrow aB \mid d \\
+      B &\rightarrow b
+    \end{align*}
+  \end{subfigure}
+  \caption{The grammar on the left is \textit{reversible} but not \textit{NTS},
+    whilst the grammar on the right is \textit{NTS} but not \textit{reversible},
+    thus indicating that neither class of grammars is contained within the
+    other.}
+  \label{rev_nts_counter}
+\end{figure}
+
+## Learning Context-Free Grammars with a Simplicity Bias
+\cite{langley2000learning} assumes nothing about the grammar, or the language,
+and works from positive samples only, so seems to buck the trend followed by
+other algorithms. However, it does not learn languages in the limit, nor in a
+distribution-free (PAC) model. Instead, it performs a beam search through the
+space of all context-free grammars, looking for a locally optimal grammar.
+
+Optimality, in this case is measured by ``Simplicity''. A grammar is simple if
+its description (in terms of number of rules and rule length) is small,
+\textit{and} the parse trees of all the samples given are also small. These two
+restrictions on size ensure that the algorithm neither over- nor under-fits the
+sample. From here on, we shall call this the \textit{simplicity bias} algorithm.
+
+The \textit{simplicity bias} procedure starts at a trivial grammar where for
+each string $\alpha$ in the sample, there is a rule $S \rightarrow \alpha$, and
+moves through the search space by transforming grammars in its frontier using
+one of two operations:
+\begin{description}
+  \item[Extract] takes a substring $\alpha$ that occurs in multiple rules,
+    replaces its occurence in those rules by a fresh non-terminal $A$, to which
+    rule $A \rightarrow \alpha$ has been added.
+
+  \item[Merge] if two non-terminals $A, B$ occur in similar contexts within the
+    rules of the grammar, then they may be merged by replacing all occurrences
+    of $B$ with $A$, adding all rules from $B$ to $A$, and then removing $B$.
+\end{description}
+
+This approach suffers from the same issues of any beam search in that it can get
+stuck at a local optimum that is not globally optimal, by pruning its frontier
+too aggressively. It is also difficult to pinpoint the subset of the
+context-free languages the algorithm can learn, simply because, given an unlucky
+choice of sample, it can be led astray.
+
+It is interesting to note that, although it is not explicitly stated in
+\cite{langley2000learning}, the heuristic used in the \textit{simplicity bias}
+algorithm favours \textit{reversible} grammars, as defined
+in\ \cite{Sakakibara199223}. This does not mean that the output of the algorithm
+is guaranteed to be reversible, however. Indeed, it is possible to violate
+condition (2) of reversibility when performing a \textsc{Merge}, although the
+\textsc{Extract} procedure is designed precisely to combat this.
+
+# Angluin's K-Bounded Algorithm {#angluin}
 
 words
 

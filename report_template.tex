@@ -10,9 +10,13 @@
 \usepackage{mdwlist}
 
 \usepackage{amsthm}
+\usepackage{amssymb}
 \usepackage{dsfont}
 \usepackage{mathtools}
 \usepackage{stmaryrd}
+
+\usepackage{float}
+\usepackage{subcaption}
 
 % Custom Commands
 \algnewcommand{\LineComment}[1]{\State \(\triangleright\) #1}
@@ -23,6 +27,9 @@
 
 \theoremstyle{plain}
 \newtheorem{theorem}{Theorem}
+
+\floatstyle{ruled}
+\restylefloat{figure}
 
 $if(fontfamily)$
 \usepackage{$fontfamily$}
