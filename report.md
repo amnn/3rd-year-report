@@ -115,8 +115,8 @@ operation is a query to the user.
     \item $N$, a finite set of \textit{non-terminals}.
     \item $\Sigma$, a finite \textit{alphabet} (also called \textit{terminals})
     \item $\mathcal{R} : N\times{(\Sigma \cup N)}^*$, a finite set of
-      \textit{productions}, of the form $X \rightarrow \alpha$ for some
-      non-terminal $X$, and string of terminals/non-terminals $\alpha$.
+      \textit{productions} or \textit{rules}, of the form $X \rightarrow \alpha$
+      for some non-terminal $X$, and string of terminals/non-terminals $\alpha$.
     \item $S \in N$, a start state.
     \end{itemize*}
   \end{definition}
