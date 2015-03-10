@@ -498,12 +498,139 @@ condition (2) of reversibility when performing a \textsc{Merge}, although the
 
 # Angluin's K-Bounded Algorithm {#angluin}
 
-words
+As hinted in previous sections, most of the work in this project will be based
+on the algorithm originally proposed in\ \cite{angluin1987learning}, Which can,
+with polynomially many queries to an oracle, learn any \textit{k-bounded}
+context-free grammar.
+
+\vbox{
+  \begin{definition}[k-bounded]
+    A grammar $G$ is $k$-bounded iff for every
+    $X \rightarrow \alpha \in \mathcal{R}$ there are at most $k$ non-terminals
+    in $\alpha$.
+  \end{definition}
+}
+
+It is easy to see, from this definition, that any chomsky-reduced form grammar
+is 2-bounded. This in turn implies that we may learn any language $L$ where
+$\varepsilon \notin L$ using this algorithm, by setting $k = 2$, and learning
+some $CRF$ grammar.
+
+## The Oracle
+
+Suppose you are attempting to learn a grammar
+$G~=~(N,\Sigma,\mathcal{R},S)$. Angluin's algorithm relies on an oracle to
+answer questions about the grammar being learnt that are, in general,
+undecidable. These queries come in one of two forms:
+
+\begin{description}
+  \item[Non-Terminal Membership] Given some non-terminal $X \in N$ and a string
+    $w \in \Sigma^*$ does $N \Rightarrow^* w$ hold in $G$? In other words, in
+    the grammar we have in mind, is it possible to derive $w$ from $N$ through
+    rules in $\mathcal{R}$. The response to this is simply a truth value.
+
+  \item[Equivalence] Given some grammar $G^\prime$, is $L(G) = L(G^\prime)$? The
+    oracle simply responds with \textit{true} if the assertion holds, or
+    otherwise, produces a witness $w \in \Sigma^*$ to $L(G) \not= L(G^\prime)$.
+\end{description}
+
+These queries are very similar in form to those used
+in\ \cite{Sakakibara199223}, with the exception that they do not require
+structural information. Where Sakakibara's algorithm needed to know whether a
+parse tree could be rooted at some non-terminal $N$, we only ask about the
+yield. This is strictly less information, as more than one parse tree could give
+the same yield.
+
+In general it is preferable to rely on a weaker oracle (one that is capable of
+provided less information). As our implementation will be relying on human input
+to form the answers to its queries, this preference becomes more compelling: A
+weaker oracle, means less work for the user.
 
 ## Algorithm
 
-words
+As input, the algorithm takes $N$, the set of non-terminals, $\Sigma$, the
+alphabet, and $S \in N$ the starting non-terminal. From these, it attempts to
+learn the productions in the target grammar.
 
+The algorithm repeatedly requests counter-examples, and uses them to add or
+remove productions from the grammar it is learning, $G^\prime$. The work done in
+response to each counter-example brings $G^\prime$ closer to the target grammar,
+until there are no counter-examples left, at which point it is equivalent with
+the target. Pseudocode is provided in Algorithm\ \ref{algo:kbounded}, with
+supporting definitions in
+Algorithms\ \ref{algo:diagnose},\ \ref{algo:candidate}.
+
+\begin{algorithm}
+\caption{
+  Learning routine. \textsc{Parse} returns the parse tree of a grammar for a
+  given word. $\textsc{Equal}^*$ and $\textsc{Counter-example}^*$ together
+  represent an equivalence query to the oracle.
+}
+
+\label{algo:kbounded}
+\begin{algorithmic}
+\Function{Learn}{N, $\Sigma$, S}
+  \State $\mathcal{R}^\prime \gets \emptyset$
+  \State $\mathbf{let}~G^\prime = (N,\Sigma,\mathcal{R}^\prime,S)$
+  \While{$\lnot\Call{Equal$^\ast$}{G^\prime}$}
+    \State $c \gets \Call{Counter-example$^\ast$}{G^\prime}$
+    \If {$c \in L(G^\prime)$}
+      \State $t \gets \Call{Parse}{G^\prime, c}$
+      \State $\mathcal{R}^\prime
+      \gets \mathcal{R}^\prime \setminus \{\Call{Diagnose}{t}\}$
+    \Else
+      \State $\mathcal{R}^\prime
+      \gets \mathcal{R}^\prime \cup \Call{Candidate}{c}$
+    \EndIf
+  \EndWhile
+  \State \Return $G^\prime$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{
+  Diagnose a bad parse. $\textsc{Member}^*$ represents a non-terminal membership
+  query to the oracle.
+}
+\label{algo:diagnose}
+\begin{algorithmic}
+\Function{Diagnose}{T}
+  \LineComment{\textbf{input} A parse tree, for a false-positive string.}
+  \LineComment{\textbf{output} A bad production in $G^\prime$}
+  \ForAll{children $(T^\prime, x)$ of $T$}
+    \If {$\lnot\Call{Member$^\ast$}{T^\prime, x}$}
+      \Comment{is the child bad?}
+      \State \Return $\Call{Diagnose}{T^\prime}$
+    \EndIf
+  \EndFor
+
+  \State \Return $T$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Candidate rules for generating the missing string.}
+\label{algo:candidate}
+\begin{algorithmic}
+\Function{Candidate}{w}
+  \LineComment{\textbf{input} A string not currently in $L(G^\prime)$}
+  \LineComment{\textbf{output} A set of candidate productions}
+  \State $C \gets \emptyset$
+  \ForAll{substrings $y$ of $w$}
+    \For{$m = 0 \ldots k$}
+      \ForAll{$y = x_0y_0 \ldots x_my_mx_{m+1}$}
+        \ForAll{$(A, A_0,\ldots,A_m) \in N^{m+1}$}
+          \State $C \gets C \cup \{A \rightarrow x_0A_0 \ldots x_mA_mx_{m+1}\}$
+        \EndFor
+      \EndFor
+    \EndFor
+  \EndFor
+  \State \Return $C$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
 ## Restriction to Chomsky Reduced Form
 
 words
