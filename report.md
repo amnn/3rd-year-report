@@ -311,7 +311,6 @@ ancillary functions. In this section, I outline the dependencies used in the
 project.
 
 \phantomsection{}
-\addcontentsline{toc}{subsubsection}{\texttt clojure.data/priority-map}
 \subsubsection*{\texttt{clojure.data/priority-map} \\
   \small{\cite{clojure_data_prioritymap}}}
 
@@ -319,7 +318,6 @@ An ordered key-value data structure sorted by its value, with a uniqueness
 constraint on keys. Used in situations similar to a heap.
 
 \phantomsection{}
-\addcontentsline{toc}{subsubsection}{\texttt bigml/sampling}
 \subsubsection*{\texttt{bigml/sampling} \\
   \small{\cite{bigml_sampling}}}
 
@@ -327,7 +325,6 @@ A library of sampling functions, for picking random elements from both finite
 collections and infinite streams.
 
 \phantomsection{}
-\addcontentsline{toc}{subsubsection}{\texttt net.mikera/core.matrix}
 \subsubsection*{\texttt{net.mikera/core.matrix} \\
   \small{\cite{net_mikera_core_matrix}}}
 
@@ -337,7 +334,6 @@ standard library collections which are not well-suited to array programming
 operations.
 
 \phantomsection{}
-\addcontentsline{toc}{subsubsection}{\texttt net.mikera/vectorz-clj}
 \subsubsection*{\texttt{net.mikera/vectorz-clj} \\
   \small{\cite{net_mikera_vectorz_clj}}}
 
