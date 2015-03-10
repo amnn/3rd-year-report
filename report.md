@@ -37,8 +37,8 @@ guarantee that the algorithm always outputs an unambiguous grammar, as in
 \cite{Clark06pac-learningunambiguous}.
 
 One could also focus on learning the language, without expecting any favourable
-properties from the grammar, which is the approach we will follow in this
-project. Starting from the algorithm proposed in\ \cite{angluin1987learning},
+properties from the grammar. This is the approach we will follow in this
+project, starting from the algorithm proposed in\ \cite{angluin1987learning},
 which assumes only that a grammar is \textit{k-bounded}. Whilst this assumption
 restricts the learnable grammars, it does not restrict the learnable
 \textit{languages}, which we will later show.
