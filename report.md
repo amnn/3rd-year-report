@@ -396,7 +396,7 @@ longer be presented: Take, for instance, the regular language described by
 $aa^*$. Clark shows that this language is not representable by an unambiguous
 NTS grammar: An NTS grammar that represents it must necessarily be ambiguous.
 
-## Efficient learning of context-free grammars from positive structural examples
+## Efficient learning of context-free grammars from positive structural examples {#sakakibara}
 
 This algorithm, explained fully in \cite{Sakakibara199223}, makes use of
 ``positive structural examples'' --- unlabeled parse trees --- from
@@ -499,22 +499,17 @@ condition (2) of reversibility when performing a \textsc{Merge}, although the
 # Angluin's K-Bounded Algorithm {#angluin}
 
 As hinted in previous sections, most of the work in this project will be based
-on the algorithm originally proposed in\ \cite{angluin1987learning}, Which can,
+on the algorithm originally proposed in\ \cite{angluin1987learning}, which can,
 with polynomially many queries to an oracle, learn any \textit{k-bounded}
 context-free grammar.
 
 \vbox{
-  \begin{definition}[k-bounded]
+  \begin{definition}[k-bounded]\label{def:kbounded}
     A grammar $G$ is $k$-bounded iff for every
     $X \rightarrow \alpha \in \mathcal{R}$ there are at most $k$ non-terminals
     in $\alpha$.
   \end{definition}
 }
-
-It is easy to see, from this definition, that any chomsky-reduced form grammar
-is 2-bounded. This in turn implies that we may learn any language $L$ where
-$\varepsilon \notin L$ using this algorithm, by setting $k = 2$, and learning
-some $CRF$ grammar.
 
 ## The Oracle
 
@@ -534,12 +529,11 @@ undecidable. These queries come in one of two forms:
     otherwise, produces a witness $w \in \Sigma^*$ to $L(G) \not= L(G^\prime)$.
 \end{description}
 
-These queries are very similar in form to those used
-in\ \cite{Sakakibara199223}, with the exception that they do not require
-structural information. Where Sakakibara's algorithm needed to know whether a
-parse tree could be rooted at some non-terminal $N$, we only ask about the
-yield. This is strictly less information, as more than one parse tree could give
-the same yield.
+It is possible to draw parallels here with the framework set up
+in\ \cite{Sakakibara199223} (as described in Section\ \ref{sakakibara}). However,
+where Sakakibara's algorithm needed to know whether a parse tree could be rooted
+at some non-terminal $N$, we only ask about the yield. This is strictly less
+information, as more than one parse tree could give the same yield.
 
 In general it is preferable to rely on a weaker oracle (one that is capable of
 provided less information). As our implementation will be relying on human input
@@ -631,9 +625,14 @@ Algorithms\ \ref{algo:diagnose},\ \ref{algo:candidate}.
 \EndFunction
 \end{algorithmic}
 \end{algorithm}
+
 ## Restriction to Chomsky Reduced Form
 
-words
+It is easy to see, from Definition\ \ref{def:kbounded}, that any chomsky-reduced
+form grammar is 2-bounded. This in turn implies that we may learn any language
+$L$ where $\varepsilon \notin L$ using this algorithm, by setting $k = 2$, and
+learning some $CRF$ grammar.
+
 
 # A Sampling Oracle
 
