@@ -167,15 +167,16 @@ $X\rightarrow\alpha\in\mathcal{R}$.
 }
 
 \vbox{
-  \begin{definition}[Chomsky Reduced Form] \label{def_crf}
+  \begin{definition}[Chomsky Reduced Form] \label{def:crf}
     $G$ is in \textit{Chomsky Reduced Form} (CRF) if all of its rules are in one
     of two forms:
     \begin{align*}
       A &\rightarrow BC \tag*{$A,B,C \in N$}\\
       A &\rightarrow a \tag*{$A \in N, a\in\Sigma$}
     \end{align*}
-    Observe that grammars in CRF can generate any language that does not contain
-    $\varepsilon$.
+    Observe that grammars in CRF can generate any context-free language that
+    does not contain $\varepsilon$. For convenience, we shall denote this class
+    of languages $\mathcal{L}^{\bar \varepsilon}$.
   \end{definition}
 }
 
@@ -288,7 +289,7 @@ $\Sigma^*$.
   \end{definition}
 }
 
-It is worth noting that the previous observation in Definition\ \ref{def_crf}
+It is worth noting that the previous observation in Definition\ \ref{def:crf}
 still holds for SCFGs.
 
 # Technology
