@@ -512,6 +512,11 @@ context-free grammar.
   \end{definition}
 }
 
+That is to say, the algorithm is parametrised by a $k$, given which, it finds a
+$k$-bounded grammar that accepts the target language. To do so, the algorithm
+must also be given the set of non-terminals, $N$, in a grammar accepting the
+language.
+
 ## The Oracle
 
 Suppose you are attempting to learn a grammar
@@ -564,7 +569,14 @@ Algorithms\ \ref{algo:diagnose},\ \ref{algo:candidate}.
 
 \label{algo:kbounded}
 \begin{algorithmic}
-\Function{Learn}{N, $\Sigma$, S}
+\Function{Learn}{N, $\Sigma$, S, k}
+  \LineComment{\textbf{input} $N$, The non-terminals in the target grammar.}
+  \LineComment{\textbf{input} $\Sigma$, The terminal alphabet of the grammar.}
+  \LineComment{\textbf{input} $S \in N$, The start non-terminal.}
+  \LineComment{\textbf{input} $k$, A bound on the number of non-terminals in a
+    rule.}
+  \LineComment{\textbf{output} $G^\prime$, a grammar accepting the target
+    language.}
   \State $\mathcal{R}^\prime \gets \emptyset$
   \State $\mathbf{let}~G^\prime = (N,\Sigma,\mathcal{R}^\prime,S)$
   \While{$\lnot\Call{Equal$^\ast$}{G^\prime}$}
@@ -575,7 +587,7 @@ Algorithms\ \ref{algo:diagnose},\ \ref{algo:candidate}.
       \gets \mathcal{R}^\prime \setminus \{\Call{Diagnose}{t}\}$
     \Else
       \State $\mathcal{R}^\prime
-      \gets \mathcal{R}^\prime \cup \Call{Candidate}{c}$
+      \gets \mathcal{R}^\prime \cup \Call{Candidate}{c, k}$
     \EndIf
   \EndWhile
   \State \Return $G^\prime$
@@ -609,8 +621,10 @@ Algorithms\ \ref{algo:diagnose},\ \ref{algo:candidate}.
 \caption{Candidate rules for generating the missing string.}
 \label{algo:candidate}
 \begin{algorithmic}
-\Function{Candidate}{w}
-  \LineComment{\textbf{input} A string not currently in $L(G^\prime)$}
+\Function{Candidate}{w, k}
+  \LineComment{\textbf{input} $w$, A string not currently in $L(G^\prime)$}
+  \LineComment{\textbf{input} $k$, A bound on the number of non-terminals in a
+    rule.}
   \LineComment{\textbf{output} A set of candidate productions}
   \State $C \gets \emptyset$
   \ForAll{substrings $y$ of $w$}
