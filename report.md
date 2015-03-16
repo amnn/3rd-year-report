@@ -531,18 +531,19 @@ undecidable. These queries come in one of two forms:
     rules in $\mathcal{R}$. The response to this is simply a truth value.
 
   \item[Equivalence] Given some grammar $G^\prime$, is $L(G) = L(G^\prime)$? The
-    oracle simply responds with \textit{true} if the assertion holds, or
-    otherwise, produces a witness $w \in \Sigma^*$ to $L(G) \not= L(G^\prime)$.
+    oracle responds with \textit{true} if the assertion holds, or otherwise,
+    produces a witness $w \in \Sigma^*$ to $L(G) \not= L(G^\prime)$.
 \end{description}
 
 It is possible to draw parallels here with the framework set up
-in\ \cite{Sakakibara199223} (as described in Section\ \ref{sakakibara}). However,
-where Sakakibara's algorithm needed to know whether a parse tree could be rooted
-at some non-terminal $N$, we only ask about the yield. This is strictly less
-information, as more than one parse tree could give the same yield.
+in\ \cite{Sakakibara199223} (as described in Section\ \ref{sakakibara}).
+However, where Sakakibara's algorithm needs to know whether a parse tree could
+be rooted at some non-terminal $N$, we only ask about the yield from $N$. This
+is strictly less information, as more than one parse tree could give the same
+yield.
 
 In general it is preferable to rely on a weaker oracle (one that is capable of
-provided less information). As our implementation will be relying on human input
+providing less information). As our implementation will be relying on human input
 to form the answers to its queries, this preference becomes more compelling: A
 weaker oracle, means less work for the user.
 
@@ -555,8 +556,8 @@ learn the productions in the target grammar.
 The algorithm repeatedly requests counter-examples, and uses them to add or
 remove productions from the grammar it is learning, $G^\prime$. The work done in
 response to each counter-example brings $G^\prime$ closer to the target grammar,
-until there are no counter-examples left, at which point it is equivalent with
-the target. Pseudocode is provided in Algorithm\ \ref{algo:kbounded}, with
+until there are no counter-examples left, at which point it is equivalent to the
+target. Pseudocode is provided in Algorithm\ \ref{algo:kbounded}, with
 supporting definitions in
 Algorithms\ \ref{algo:diagnose},\ \ref{algo:candidate}.
 
