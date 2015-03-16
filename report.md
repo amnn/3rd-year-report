@@ -174,6 +174,9 @@ $X\rightarrow\alpha\in\mathcal{R}$.
       A &\rightarrow BC \tag*{$A,B,C \in N$}\\
       A &\rightarrow a \tag*{$A \in N, a\in\Sigma$}
     \end{align*}
+    The former will be referred to as a \textit{branch} rule, and the latter as
+    a \textit{leaf} rule.
+
     Observe that grammars in CRF can generate any context-free language that
     does not contain $\varepsilon$. For convenience, we shall denote this class
     of languages $\mathcal{L}^{\bar \varepsilon}$.
@@ -644,11 +647,134 @@ Algorithms\ \ref{algo:diagnose},\ \ref{algo:candidate}.
 
 ## Restriction to Chomsky Reduced Form
 
-It is easy to see, from Definition\ \ref{def:kbounded}, that any chomsky-reduced
-form grammar is 2-bounded. This in turn implies that we may learn any language
-$L$ where $\varepsilon \notin L$ using this algorithm, by setting $k = 2$, and
-learning some $CRF$ grammar.
+It is obvious, but worth mentioning, that neither $k$ nor $N$ are trivial
+parameters to the algorithm: When learning some language $L$, if we fix
+particular values for $k$ and $N$ we cannot be certain of the existence of a
+$k$-bounded grammar that uses at most $\lvert N \rvert$ non-terminals. In fact,
+if we fix some $N$ there is no guarantee that we can find a grammar recognising
+the language at all, regardless of the value of $k$. Happily however, if
+$L\in\mathcal{L}^{\bar \varepsilon}$, the converse does hold: If we fix the
+value of $k$, we can guarantee that for some set of non-terminals $N$, there is
+a $k$-bounded grammar $G=(N,\Sigma,\mathcal{R},S)$ s.t. $L(G) = L$.
 
+\begin{theorem}
+  For any $n \in \mathbb{N}$, there is a language, $L$ s.t. for any grammar
+  $G = (N,\Sigma,\mathcal{R},S)$ where $L(G) = G$, $\lvert N \rvert > n$.
+
+  \begin{proof}[Proof by Contradiction]
+    Consider some $n \in \mathbb{N}$, $L=\{\alpha_i^k:0\leq i\leq n, k\geq 0\}$
+
+    Suppose there is some
+    $G=(N,\Sigma=\{\alpha_0,\dotsc,\alpha_n\},\mathcal{R},S)$\\
+    s.t. $L(G)=L$ and $\lvert N \rvert \leq n$
+    \begin{enumerate}[$\implies$]
+      \item $S \Rightarrow^* \alpha_i^k$ in $G$
+        \hfill $0 \leq i \leq n, k \geq 0$
+    \end{enumerate}
+    W.l.o.g, assume that for each $X \in N$, $X$ appears in the derivation of
+    some $\alpha_i^k \in L$. As otherwise, we may simply discard $X$ from the
+    grammar, whilst maintaining that $L(G) = L$ and $\lvert N\rvert \leq n$.
+    \begin{enumerate}[$\implies$]
+      \item[$\iff$] $X \Rightarrow^* \alpha_i^k$
+        \hfill $\forall X\in N.~\exists i,k\in \mathbb{N}$
+      \item $X\Rightarrow^*\alpha_i^k$ and $X\Rightarrow^*\alpha_j^l$
+        where $i \neq j$ for some $X$
+        \hfill $\lvert N \rvert \leq n, \lvert\Sigma\rvert = n+1$\\
+        \begingroup\raggedleft
+        (pigeon-hole principle)
+        \par\endgroup
+    \end{enumerate}
+
+    Consider a derivation of $\alpha_i^m$ in $G$, with $m\geq k$:
+    \begin{align*}
+      S &\Rightarrow^*\alpha_i^pX\alpha_i^q \tag*{$p+q+k = m$}\\
+        &\Rightarrow^*\alpha_i^m
+      \tag{by our assumption, such a derivation must exist}
+    \end{align*}
+    \begin{enumerate}[$\implies$]
+      \item $S\Rightarrow^*\alpha_i^pX\alpha_i^q
+        \Rightarrow^*\alpha_i^p\alpha_j^l\alpha_i^q$\hfill$i\neq j$
+      \item[$\overset{\text\textreferencemark}{\implies}$] $L(G) \neq L$\qedhere
+    \end{enumerate}
+  \end{proof}
+\end{theorem}
+
+\begin{theorem}\label{thm:2bounded}
+  There is a fixed value of $k$ such that for any
+  $L\in\mathcal{L}^{\bar \varepsilon}$, there is a $k$-bounded grammar $G$ s.t.
+  $L(G) = L$.
+
+  \begin{proof}
+    Observe that, every CRF grammar is 2-bounded, and, as stated
+    in Definition\ \ref{def:crf}, every $L\in\mathcal{L}^{\bar \varepsilon}$ is
+    recognised by some grammar in CRF.
+
+    From these observations, it follows that our proposition holds for
+    $k \geq 2$. \qedhere
+  \end{proof}
+\end{theorem}
+
+These results suggest a possible simplification: If there is a CRF grammar for
+any $L\in\mathcal{L}^{\bar \varepsilon}$, then why not devote our time to
+finding grammars solely in this form? Theorem\ \ref{thm:2bounded} shows us that
+doing so would remove the need for the parameter $k$: It would always be 2.
+
+In fact, we can simplify the \textsc{Candidate} subroutine further than just
+hard-coding $k = 2$: Because we know that rules must either be in
+\textit{branch} or \textit{leaf} form, we will have the \textsc{Candidate}
+routine return only such rules.
+
+If we assume (naïvely) that the oracle always gives perfect answers, we can go
+further still. A perfect oracle will never, through the answers it provides to
+our algorithm's queries, cause a rule in the target grammar to be removed. As
+such, we can have our algorithm cache previous responses from the oracle. Using
+this technique, we can avoid adding rules we already know are bad back into the
+grammar, and we can also reduce the number of queries made to the oracle. These
+optimisations will yield significant improvements in our cost model.
+
+Our restriction to CRF appears to have brought with it another restriction: Our
+new algorithm only learns languages in $\mathcal{L}^{\bar\varepsilon}$. In fact,
+this was added only to remove awkward case analyses, and our algorithm can be
+used to learn grammars that recognise any context-free language by a
+straightforward transformation.
+\begin{theorem}[Completeness]
+  An algorithm that learns grammars with languages in
+  $\mathcal{L}^{\bar\varepsilon}$, can be used to learn grammars for any
+  context-free language.
+
+  \textbf{STP:} Such an algorithm can be used to learn a grammar recognising a
+  context-free language $L\notin\mathcal{L}^{\bar\varepsilon}$.
+  \begin{proof}
+    Suppose we wish to learn $G = (N,\Sigma,\mathcal{R},S)$ s.t.
+    $L(G)=L\notin\mathcal{L}^{\bar\varepsilon}$.
+
+    Use our algorithm to learn $G^\prime =
+    (N^\prime,\Sigma,\mathcal{R}^\prime,S^\prime)$ s.t.
+    $L(G^\prime)=L\setminus\{\varepsilon\}\in\mathcal{L}^{\bar\varepsilon}$
+
+    Transform $G^\prime$ to $G$ with the addition of a new start state, $S$:
+    \begin{align*}
+      N &= N^\prime \cup \{S\} \tag*{$S \notin N^\prime$}\\
+      \mathcal{R} &= \mathcal{R}^\prime \cup
+      \{S \rightarrow \varepsilon,
+      S \rightarrow S^\prime \}\\
+    \end{align*}
+    Then
+    \begin{align*}
+      L(G) & = \{w \in \Sigma^* : S \Rightarrow^* w~\text{in}~G\}\\
+      & = \{\varepsilon\} \cup
+      \{w \in \Sigma^* : S \Rightarrow S^\prime \Rightarrow^* w~\text{in}~G\}
+      \tag{derivations of $S$ in $G$}\\
+      & = \{\varepsilon\} \cup
+      \{w \in \Sigma^* : S^\prime \Rightarrow^* w~\text{in}~G^\prime\}
+      \tag{no rule of form $X\rightarrow\alpha{}S\beta$ in $\mathcal{R}$}\\
+      & = \{\varepsilon\} \cup L(G^\prime)\\
+      & = L \tag*{\qedhere}
+    \end{align*}
+  \end{proof}
+\end{theorem}
+
+## Implementation
 
 # A Sampling Oracle
 
