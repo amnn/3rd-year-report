@@ -737,7 +737,7 @@ new algorithm only learns languages in $\mathcal{L}^{\bar\varepsilon}$. In fact,
 this was added only to remove awkward case analyses, and our algorithm can be
 used to learn grammars that recognise any context-free language by a
 straightforward transformation.
-\begin{theorem}[Completeness]
+\begin{theorem}
   An algorithm that learns grammars with languages in
   $\mathcal{L}^{\bar\varepsilon}$, can be used to learn grammars for any
   context-free language.
