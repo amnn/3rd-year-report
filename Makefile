@@ -1,8 +1,8 @@
 PARAMS =
 
-all: report.pdf
+all: out/report.pdf
 
-%.tex: %.md %_template.tex references.bib
+out/%.tex: %.md %_template.tex references.bib
 	pandoc  --template=$*_template.tex \
 		--variable monofont=Menlo \
 		--latex-engine=xelatex \
@@ -11,12 +11,12 @@ all: report.pdf
 		--natbib \
 		$(PARAMS) \
 		-f markdown -t latex \
-		$< -o out/$@
+		$< -o $@
 
-count: report.tex
-	texcount out/report.tex
+count: out/report.tex
+	texcount -sum=1,0,0,0,0,0,0 -col out/report.tex
 
-%.pdf: %.tex references.bib
+out/%.pdf: out/%.tex references.bib
 	latex -output-directory=out out/$*
 	bibtex out/$*
 	latex -output-directory=out out/$*
