@@ -446,10 +446,10 @@ are not concerned with learning in the limit.
   \begin{subfigure}[t]{0.45\textwidth}
 
     \begin{align*}
-      S &\rightarrow C \mid D \\
-      C &\rightarrow aB \mid d \\
-      D &\rightarrow aB \mid d \\
-      B &\rightarrow b
+      S &\rightarrow A \mid B \\
+      A &\rightarrow aC \mid d \\
+      B &\rightarrow bC \mid d \\
+      C &\rightarrow c
     \end{align*}
   \end{subfigure}
   \caption{The grammar on the left is \textit{reversible} but not \textit{NTS},
