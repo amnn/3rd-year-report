@@ -717,7 +717,14 @@ a $k$-bounded grammar $G=(N,\Sigma,\mathcal{R},S)$ s.t. $L(G) = L$.
 These results suggest a possible simplification: If there is a CRF grammar for
 any $L\in\mathcal{L}^{\bar \varepsilon}$, then why not devote our time to
 finding grammars solely in this form? Theorem\ \ref{thm:2bounded} shows us that
-doing so would remove the need for the parameter $k$: It would always be 2.
+doing so would remove the need for the parameter $k$: It would always be 2. This
+is not to say that, when before, we called $\textsc{Learn}(N,\Sigma,S,k)$,
+instead we can always call $\textsc{Learn}(N,\Sigma,S)$ to learn the same
+language, it means instead that for \textit{some} $N^\prime$, we can call
+$\textsc{Learn}(N^\prime,\Sigma,S)$. The question as to which $N^\prime$ remains
+non-trivial and --- to maintain focus --- is out of the scope of this project,
+however we touch on some possibilities in Section\ \ref{sec:choosing-nts} of the
+Discussion.
 
 In fact, we can simplify the \textsc{Candidate} subroutine further than just
 hard-coding $k = 2$: Because we know that rules must either be in
@@ -732,11 +739,10 @@ this technique, we can avoid adding rules we already know are bad back into the
 grammar, and we can also reduce the number of queries made to the oracle. These
 optimisations will yield significant improvements in our cost model.
 
-Our restriction to CRF appears to have brought with it another restriction: Our
-new algorithm only learns languages in $\mathcal{L}^{\bar\varepsilon}$. In fact,
-this was added only to remove awkward case analyses, and our algorithm can be
-used to learn grammars that recognise any context-free language by a
-straightforward transformation.
+Whilst our restriction to CRF grammars has allowed us to make some useful
+simplifications, it seems as though our new algorithm only learns languages in
+$\mathcal{L}^{\bar\varepsilon}$. We can in fact adapt our algorithm to learn any
+context-free language by applying a straightforward transformation.
 \begin{theorem}
   An algorithm that learns grammars with languages in
   $\mathcal{L}^{\bar\varepsilon}$, can be used to learn grammars for any
@@ -868,7 +874,7 @@ words
 
 words
 
-## Choosing Non-Terminals
+## Choosing Non-Terminals {#sec:choosing-nts}
 
 words
 
