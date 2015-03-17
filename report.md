@@ -780,17 +780,80 @@ context-free language by applying a straightforward transformation.
   \end{proof}
 \end{theorem}
 
-## Implementation
-
-# A Sampling Oracle
-
-words
-
 ## Pruning a Context-Free Grammar
 
 words
 
 ### Contribution and \textsc{HornSAT}
+
+words
+
+## Parsing CRF Grammars
+
+words
+
+## Implementation
+
+\subsubsection*{Learn}
+``` {.clojure .numberLines}
+(defn learn
+  [member* counter* nts]
+  (let [member* (memoize member*)]
+    (loop [g (init-grammar nts), blacklist \#{}]
+      (let [pg (prune-cfg g)]
+        (if-let [c (counter* pg)]
+          (if-let [t (parse-trees g c)]
+            (let [bad-rules  (diagnose member* t)
+                  bad-leaves (filter cnf-leaf? bad-rules)]
+              (recur (reduce remove-rule g bad-rules)
+                     (into blacklist bad-leaves)))
+
+            (let [new-rules (candidate nts blacklist c)]
+              (recur (reduce add-rule g new-rules)
+                     blacklist)))
+          pg)))))
+```
+
+``` {.clojure .numberLines}
+(defn- init-grammar
+  [nts]
+  (reduce add-rule (cfg)
+          (for [a nts b nts c nts]
+            [a b c])))
+```
+
+\subsubsection*{Diagnose}
+``` {.clojure .numberLines}
+(defn- diagnose
+  [member* t]
+  (letfn [(consume-child [state [rule \& children]]
+            (if-let [bad-child (some (fn [{cnt :nt cy :yield :as child}]
+                                       (when-not (member* cnt cy) child))
+                                     children)]
+              (update-in state [0] conj  bad-child)
+              (update-in state [1] conj! rule)))]
+    (loop [q         (queue t)
+           bad-rules (transient \#{})]
+      (if (seq q)
+        (let [{:keys [children]} (peek q)
+              [q* bad-rules*] (reduce consume-child
+                                      [(pop q) bad-rules]
+                                      children)]
+          (recur q* bad-rules*))
+        (persistent! bad-rules)))))
+```
+
+\subsubsection*{Candidate}
+``` {.clojure .numberLines}
+(defn- candidate
+  [nts blacklist toks]
+  (for [t toks, nt nts,
+        :let  [leaf [nt t]]
+        :when (not (blacklist leaf))]
+    leaf))
+```
+
+# A Sampling Oracle
 
 words
 
@@ -803,10 +866,6 @@ words
 words
 
 ### Nullity and \textsc{HornSAT}
-
-words
-
-## Parsing CRF Grammars
 
 words
 
