@@ -782,7 +782,76 @@ context-free language by applying a straightforward transformation.
 
 ## Pruning a Context-Free Grammar
 
-words
+It will be advantageous for us to remove extraneous rules and non-terminals from
+the grammar we are learning before performing oracle queries on it. Removing
+such artefacts from the grammar will not affect the language it represents, but
+will reduce its size.
+
+The benefit here is that whilst pruning a grammar $G$ has worst-case
+$\Theta(\lvert{}G\rvert)$ time complexity, parsing a counter-example of size $n$
+will have $\Theta(n^3\lvert{}G\rvert)$ time complexity, so if we can reduce the
+size of $G$, we will notice a speed difference in practise, even if we do not
+affect the asymptotic time complexity. This is especially true initially: As we
+will see in Section\ \ref{sec:implementation}, our implementation of the
+learning algorithm will begin with a potential grammar that contains many
+superfluous rules which it will eliminate eventually through the running
+of the algorithm.
+
+When pruning a CFG, $G=(N,\Sigma,\mathcal{R},S)$, we aim to remove $X\in{}N$ for
+which the following does not hold:
+\begin{align*}
+  S\overset{(1)}{\Rightarrow^*}\alpha{}X\beta\overset{(2)}{\Rightarrow^*}w
+  \tag*{$\exists{}\alpha,\beta\in(\Sigma\cup{}N)^*,w\in\Sigma^*$}
+\end{align*}
+As these are (by definition) the non-terminals we may remove without affecting
+$L(G)$. To remove such $X$'s we perform removals in the following order:
+\begin{enumerate*}
+  \item \textit{Non-contributing} non-terminals: Non-terminals with no
+    derivations of form $(2)$.
+  \item Rules mentioning non-terminals that we removed in the previous step.
+  \item \textit{Unreachable} non-terminals: Non-terminals with no derivations of
+    form $(1)$.
+\end{enumerate*}
+
+\begin{remark}
+The order of removals is important here: By removing a \textit{non-contributing}
+non-terminal in step 1, we may end up removing a rule in step 2 that results in
+another non-terminal becoming \textit{unreachable} from $S$.
+\end{remark}
+
+\begin{remark}
+  The opposite does not hold however: We cannot make a non-terminal $X$
+  \textit{non-contributing} by removing an \textit{unreachable} $Y$.
+  \begin{proof}
+    Suppose $X$ is \textit{non-contributing} after removing $Y$.
+
+    As a Corollary to Remark~\ref{rem:clean-reach}, $X$ cannot mention $Y$ or it
+    would itself have been removed.
+    \begin{enumerate*}
+    \item[$\implies$] Rules of the form $X\rightarrow\alpha$ are preserved in
+      the removal of Y.
+    \item[$\implies$] $X$ must have been \textit{non-contributing} before the
+      removal of $Y$.\qedhere
+    \end{enumerate*}
+  \end{proof}
+\end{remark}
+
+\begin{remark}\label{rem:clean-reach}
+  We do not have to ``clean up'' after step 3, by removing rules mentioning any
+  \textit{unreachable} non-terminals.
+
+  \begin{proof}[Proof by Contradiction]
+    Suppose $X\rightarrow\alpha$ --- a rule left in $G$ after step 3 of pruning
+    --- mentions an unreachable non-terminal, $Y$.
+    \begin{enumerate*}
+    \item[$\implies$] $X$ is reachable from $S$ in $G$.
+    \item[$\implies$] $S\Rightarrow^*X\rightarrow\alpha=\beta{}Y\gamma$
+    \item[$\overset{\text\textreferencemark}{\implies}$] $Y$ is
+      \textit{reachable}
+    \item[$\implies$] $X\rightarrow\alpha$ cannot exist. \qedhere
+    \end{enumerate*}
+  \end{proof}
+\end{remark}
 
 ### Contribution and \textsc{HornSAT}
 
@@ -792,7 +861,7 @@ words
 
 words
 
-## Implementation
+## Implementation {#sec:implementation}
 
 \subsubsection*{Learn}
 ``` {.clojure .numberLines}
