@@ -6,6 +6,7 @@
 \usepackage{algorithmicx}
 
 \usepackage{datetime}
+\usepackage{etoolbox}
 
 \usepackage{mdwlist}
 \usepackage{enumerate}
@@ -36,10 +37,12 @@
 \floatstyle{ruled}
 \restylefloat{figure}
 
+\AtBeginEnvironment{Shaded}{\small}
+
 % TeXCount directives
 
 % Ignore code listings
-%TC:group Highlighting 0 xall
+%TC:group Shaded 0 xall
 
 $if(fontfamily)$
 \usepackage{$fontfamily$}

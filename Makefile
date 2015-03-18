@@ -1,4 +1,5 @@
 PARAMS =
+LISTINGS = prune.md
 
 all: out/report.pdf
 
@@ -12,6 +13,13 @@ out/%.tex: %.md %_template.tex references.bib
 		$(PARAMS) \
 		-f markdown -t latex \
 		$< -o $@
+
+aux/%.tex: %.md
+	pandoc --latex-engine=xelatex \
+	       -f markdown -t latex \
+	       $< -o $@
+
+out/report.tex : $(LISTINGS:%.md=aux/%.tex)
 
 count: out/report.tex
 	texcount -sum=1,0,0,0,0,0,0 -col out/report.tex

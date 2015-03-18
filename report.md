@@ -797,6 +797,11 @@ learning algorithm will begin with a potential grammar that contains many
 superfluous rules which it will eliminate eventually through the running
 of the algorithm.
 
+\begin{figure}[htbp]
+  \caption{Implementation of pruning in \textit{Clojure}}
+  \input{aux/prune.tex}
+\end{figure}
+
 When pruning a CFG, $G=(N,\Sigma,\mathcal{R},S)$, we aim to remove $X\in{}N$ for
 which the following does not hold:
 \begin{align*}
@@ -829,7 +834,7 @@ another non-terminal becoming \textit{unreachable} from $S$.
     would itself have been removed.
     \begin{enumerate*}
     \item[$\implies$] Rules of the form $X\rightarrow\alpha$ are preserved in
-      the removal of Y.
+      the removal of $Y$.
     \item[$\implies$] $X$ must have been \textit{non-contributing} before the
       removal of $Y$.\qedhere
     \end{enumerate*}
