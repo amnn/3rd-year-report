@@ -858,9 +858,28 @@ another non-terminal becoming \textit{unreachable} from $S$.
   \end{proof}
 \end{remark}
 
-### Contribution and \textsc{HornSAT}
+### Reachability
+\begin{figure}[htbp]
+  \caption{Implementation of Reachability}\label{list:reach}
+  \input{aux/reach.tex}
+\end{figure}
+\vbox{
+  Finding the set of non-terminals $N^\prime$ that are reachable from $S$ can be
+  phrased straightforwardly as a graph problem. Given a grammar
+  $G=(N,\Sigma,\mathcal{R},S)$, we may construct a directed graph $R$ wherein:
+  \begin{align*}
+    V(R) & = N \\
+    E(R) & = \{(X,Y) \in N^2
+              : \exists\alpha,\beta\in(\Sigma\cup{}N)^*
+              .~X\rightarrow\alpha{}Y\beta\in\mathcal{R}\}
+  \end{align*}
+}
+Then $N^\prime$ is precisely the set of nodes in $R$ reachable (in the graph
+theoretic sense) from $S$. In our implementation (Figure\ \ref{list:reach}), we
+do not explicitly construct $R$, but implicitly traverse it by a breadth-first
+search.
 
-words
+### Contribution and \textsc{HornSAT}
 
 ## Parsing CRF Grammars
 
