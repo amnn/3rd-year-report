@@ -1,5 +1,5 @@
 PARAMS =
-LISTINGS = prune.md reach.md
+LISTINGS = prune.md reach.md contribution.md
 
 all: out/report.pdf
 

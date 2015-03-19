@@ -741,8 +741,8 @@ optimisations will yield significant improvements in our cost model.
 
 Whilst our restriction to CRF grammars has allowed us to make some useful
 simplifications, it seems as though our new algorithm only learns languages in
-$\mathcal{L}^{\bar\varepsilon}$. We can in fact adapt our algorithm to learn any
-context-free language by applying a straightforward transformation.
+$\mathcal{L}^{\bar\varepsilon}$. We can in actuality adapt our algorithm to
+learn any context-free language by applying a straightforward transformation.
 \begin{theorem}
   An algorithm that learns grammars with languages in
   $\mathcal{L}^{\bar\varepsilon}$, can be used to learn grammars for any
@@ -859,27 +859,111 @@ another non-terminal becoming \textit{unreachable} from $S$.
 \end{remark}
 
 ### Reachability
+
+Instead of finding the set of \textit{unreachable} non-terminals, it is more
+convenient to consider the problem of finding \textit{reachable} non-terminals,
+and then take the complement of this set w.r.t. $N$.
+
 \begin{figure}[htbp]
-  \caption{Implementation of Reachability}\label{list:reach}
+  \caption{Implementation of \textit{Reachability}}\label{list:reach}
   \input{aux/reach.tex}
 \end{figure}
-\vbox{
-  Finding the set of non-terminals $N^\prime$ that are reachable from $S$ can be
-  phrased straightforwardly as a graph problem. Given a grammar
-  $G=(N,\Sigma,\mathcal{R},S)$, we may construct a directed graph $R$ wherein:
-  \begin{align*}
-    V(R) & = N \\
-    E(R) & = \{(X,Y) \in N^2
-              : \exists\alpha,\beta\in(\Sigma\cup{}N)^*
-              .~X\rightarrow\alpha{}Y\beta\in\mathcal{R}\}
-  \end{align*}
-}
+
+Finding the set of non-terminals $N^\prime$ that are reachable from $S$ can be
+phrased straightforwardly as a graph problem. Given a grammar
+$G=(N,\Sigma,\mathcal{R},S)$, we may construct a directed graph $R$ wherein:
+\begin{align*}
+  V(R) & = N \\
+  E(R) & = \{(X,Y) \in N^2
+           : \exists\alpha,\beta\in(\Sigma\cup{}N)^*
+           .~X\rightarrow\alpha{}Y\beta\in\mathcal{R}\}
+\end{align*}
+
 Then $N^\prime$ is precisely the set of nodes in $R$ reachable (in the graph
 theoretic sense) from $S$. In our implementation (Figure\ \ref{list:reach}), we
 do not explicitly construct $R$, but implicitly traverse it by a breadth-first
 search.
 
 ### Contribution and \textsc{HornSAT}
+
+As with reachability, it will be useful here to concentrate on the complement of
+\textit{non-contribution}: Given a grammar $G = (N,\Sigma,\mathcal{R},S)$, find
+the set of non-terminals $C$ that contribute to strings in $L(G)$. A
+non-terminal is said to contribute when it contains at least one rule in which
+every mentioned non-terminal also contributes.
+
+\begin{theorem}
+  $X\in C \iff
+  \exists~X\rightarrow{}u_0Y_0u_1Y_1\ldots{}u_kY_ku_{k+1}\in\mathcal{R}.~
+  \{Y_i\}_i\subseteq C$
+  \begin{proof}
+    Suppose $X\in C$
+    \begin{enumerate*}
+      \item[$\iff$] $X\rightarrow\alpha\Rightarrow^*w$ in $G$
+        \hfill$\exists\alpha\in(\Sigma\cup{}N)^*, w\in\Sigma^*$\\
+        \begingroup\raggedleft
+        (defn. \textit{contributing})
+        \par\endgroup
+      \item[~] Let $\alpha = u_0Y_0u_1Y_1\ldots{}u_kY_Ku_{k+1}$
+      \item[$\iff$] $w = u_0y_0\ldots{}u_ky_ku_{k+1}$
+        where $Y_i\Rightarrow^*y_i,~0 \leq i \leq k$
+      \item[$\iff$] $\{Y_i\}_i\subseteq C$\qedhere
+    \end{enumerate*}
+  \end{proof}
+\end{theorem}
+
+Using this definition of \textit{contribution} we may define a propositional
+formula, $\phi$ mentioning a propositional variable $c_X$ for every $X\in N$ in
+such a way that for an assigment $\mathcal{A}$, $\mathcal{A}\not{\vdash}\phi$
+iff $c_Y\mapsto 0 \in \mathcal{A}$ for some $Y\in C$:
+
+\begin{align*}
+  \text{Let}~R_{X,i} & \equiv
+    X\rightarrow u_{i,0}Y_{i,0}\ldots{}u_{i,k_i}Y_{i,k_i}u_{i,k_i+1}
+  \\\phi & \equiv \bigwedge_{X\in N}
+    \left(\bigvee_{R_{X,i}\in\mathcal{R}}
+          \bigwedge_{j=0}^{k_i}c_{Y_{i,j}}\right)
+    \implies c_X
+  \\& \equiv \bigwedge_{X\in N}
+    \neg\left(\bigvee_{R_{X,i}\in\mathcal{R}}
+              \bigwedge_{j=0}^{k_i}c_{Y_{i,j}}\right)
+    \vee c_X
+  \\& \equiv \bigwedge_{X\in N}
+    \left(\bigwedge_{R_{X,i}\in\mathcal{R}}
+          \neg\bigwedge_{j=0}^{k_i}c_{Y_{i,j}}\right)
+    \vee c_X
+  \\& \equiv \bigwedge_{R_{X,i}\in\mathcal{R}}
+          \left(\bigwedge_{j=0}^{k_i}c_{Y_{i,j}}\right) \implies c_X
+\end{align*}
+
+\begin{enumerate*}
+  \item[~] Suppose we find a minimal satisfying assignment
+    $\mathcal{A}\vdash\phi$.
+  \item[$\iff$] $\mathcal{A}$ assigns as few variables positively as possible
+    whilst still satisfying $\phi$.
+  \item[$\implies$] $\mathcal{A}$ assigns only $\{c_Y : Y\in C\}$ positively.
+\end{enumerate*}
+
+$\phi$ is in fact a Horn formula (a formula in conjunctive normal form in which
+each conjunct contains at most one positive literal). As a result, it is
+possible for us to find such a (unique) minimal $\mathcal{A}$, in linear time
+using unit propagation: an algorithm referred to as \textsc{HornSAT}. The
+implementation of this algorithm is given in Section\ \ref{app:horn-sat} of the
+Appendices, but its proper description is omitted here for brevity.
+
+\begin{figure}[htbp]
+  \caption{\textit{Contribution}. Almost all of the work is performed by the
+    \textsc{HornSAT} routine: It performs the reduction from rules in a grammar
+    to an instance of Horn SAT, before repeatedly applying unit propagation to
+    reach a minimal satisfying assignment, represented as a set of
+    non-terminals.\\\\
+    As in the reachability algorithm (Figure~\ref{list:reach}), for the sake of
+    efficiency, we do not explicitly create the propositional formula we are
+    reducing to, but instead produce a graph representation of the grammar,
+    elaborated in detail in Section~\ref{app:cfg} of the Appendices.}
+
+  \input{aux/contribution.tex}
+\end{figure}
 
 ## Parsing CRF Grammars
 
@@ -1058,7 +1142,7 @@ words
 
 words
 
-## Representing CFGs
+## Representing CFGs {#app:cfg}
 
 words
 
@@ -1066,7 +1150,7 @@ words
 
 words
 
-## \textsc{HornSAT}
+## \textsc{HornSAT} {#app:horn-sat}
 
 words
 
