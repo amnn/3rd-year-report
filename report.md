@@ -131,12 +131,14 @@ Suppose, w.r.t. grammar $G$ we define the relations
   &\iff X \rightarrow \beta \in \mathcal{R}
   \tag*{$\forall{}w\in\Sigma^*,\beta,\gamma\in{(\Sigma\cup{}N)}^{*}$}
 \end{align*}
+
 With reflexive transitive closures $\cdot\Rightarrow^*\cdot$ and
-$\cdot\Rightarrow_l^*\cdot$ respectively. Then we may say
-$\alpha$ \textit{yields} $\beta$ iff $\alpha \Rightarrow \beta$,
-$\alpha$ \textit{derives} $\beta$ iff $\alpha \Rightarrow^* \beta$,
-and $\alpha$ \textit{left-most derives} $\beta$ iff
-$\alpha \Rightarrow_l^* \beta$.
+$\cdot\Rightarrow_l^*\cdot$ respectively. Then we may say $\alpha$
+\textit{1-step derives} $\beta$ iff $\alpha \Rightarrow \beta$, $\alpha$
+\textit{derives} $\beta$ iff $\alpha \Rightarrow^* \beta$, and $\alpha$
+\textit{left-most derives} $\beta$ iff $\alpha \Rightarrow_l^* \beta$. The term
+\textit{yields} is also often used interchangeably with \textit{derives},
+especially in the context of \textit{parse trees}.
 
 Every left-most derivation also uniquely defines a \textit{parse tree}. A parse
 tree $t$ for grammar $G$ deriving a string $w$ is a tree with
