@@ -949,7 +949,9 @@ each conjunct contains at most one positive literal). As a result, it is
 possible for us to find such a (unique) minimal $\mathcal{A}$, in linear time
 using unit propagation: an algorithm referred to as \textsc{HornSAT}. The
 implementation of this algorithm is given in Section\ \ref{app:horn-sat} of the
-Appendices, but its proper description is omitted here for brevity.
+Appendices, for completeness. A proof of correctness may be found
+in\ \cite[Theorem~(1.8)~pp67--68]{Huth:2004:LCS:975331}, from which the
+minimality and uniqueness of $\mathcal{A}$ follows as a corollary.
 
 \begin{figure}[htbp]
   \caption{\textit{Contribution}. Almost all of the work is performed by the
