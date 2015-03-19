@@ -1,5 +1,5 @@
 PARAMS =
-LISTINGS = prune.md reach.md contribution.md
+LISTINGS = prune.md reach.md contribution.md cyk.md parse_trees.md
 
 all: out/report.pdf
 

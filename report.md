@@ -867,7 +867,7 @@ convenient to consider the problem of finding \textit{reachable} non-terminals,
 and then take the complement of this set w.r.t. $N$.
 
 \begin{figure}[htbp]
-  \caption{Implementation of \textit{Reachability}}\label{list:reach}
+  \caption{Implementation of \textit{Reachability}.}\label{list:reach}
   \input{aux/reach.tex}
 \end{figure}
 
@@ -971,7 +971,82 @@ minimality and uniqueness of $\mathcal{A}$ follows as a corollary.
 
 ## Parsing CRF Grammars
 
-words
+Parsing is another important subroutine utilised by Angluin's \textit{k-bounded}
+algorithm. We can take advantage of the fact that the grammars we learn will
+always be in CRF, and use the CYK parsing algorithm, as found
+in\ \cite{kasami1965efficient} for this task. It is most popularly depicted as a
+dynamic programming algorithm for testing whether a grammar
+$G=(N,\Sigma,\mathcal{R},S)$ generates a string $w\in\Sigma^*$ in
+$\Theta({\lvert{}w\rvert}^3\lvert G\rvert)$ time, where $G$ is in Chomsky
+\textit{normal} form. We instead present a variant for CRF grammars (The only
+modifications are those omitting cases, so their details have been elided).
+
+\begin{figure}[htbp]
+  \caption{Tabulation scheme for \textsc{CYK}. I take $\llbracket P\rrbracket$
+    to denote the truth value of the proposition $P$, similar to an indicator
+    function for truth values.}\label{fig:cyk-tab}
+  \begin{align*}
+    \textsc{CYK}[i;j;X] & \coloneqq\llbracket X\Rightarrow^*w_{j,j+i}\rrbracket
+    \tag*{$0 < i\leq\lvert w\rvert, 0\leq j <\lvert w\rvert,X\in N$}
+    \\ \textsc{CYK}[1;j;X] & \coloneqq
+    {\llbracket X\rightarrow w_j\in\mathcal{R}\rrbracket}^{(1)}
+    \\ \textsc{CYK}[i;j;X] & \coloneqq
+    \bigvee_{\substack{0 < k < i,\\X\rightarrow YZ\in\mathcal{R}}}^{(2)}
+    \textsc{CYK}[k;j;Y]\wedge^{(3)}\textsc{CYK}[i-k;j+k;Z]
+  \end{align*}
+\end{figure}
+
+From the tabulation scheme in Figure\ \ref{fig:cyk-tab} we see that:
+\begin{itemize*}
+\item Each cell $\textsc{CYK}[i;j;X]$ is \textbf{true} when we can derive the
+  substring of $w$ of length $i$ starting at offset $j$ from $X$ in $G$.
+\item The value at $\textsc{CYK}[\lvert w \rvert;0;S]$ tells us whether $G$
+  generates $w$.
+\item We must memoize cells in increasing order of $i$.
+\end{itemize*}
+
+\begin{figure}[htbp]
+  \caption{\textit{Generalised CYK}.}\label{list:cyk}
+  \input{aux/cyk.tex}
+\end{figure}
+
+Our implementation of this algorithm (Figure\ \ref{list:cyk}) will be
+generalised so that we can determine more than just whether $G$ generates
+$w$. This generalisation follows naturally from replacing the operations
+annotated numerically in Figure\ \ref{fig:cyk-tab} with higher order functions
+in Figure\ \ref{list:cyk} as follows:
+
+\begin{enumerate*}
+  \item becomes \texttt{->leaf}
+  \item becomes \texttt{merge-fn}
+  \item becomes \texttt{->branch}
+\end{enumerate*}
+
+Additionally, rather than passing a grammar to the routine, we pass collections
+of \texttt{branches} and \texttt{leaves}, as well as a \texttt{rule} function to
+extract a rule from an element of either of the aforementioned collections. The
+rationale behind this is that it allows specialisations of this algorithm to
+annotate rules with extra information which is then accessible by the
+\texttt{merge-fn}, but using \texttt{rule}, the algorithm can extract the
+structural information it needs to detect whether a particular derivation step
+can be taken.
+
+This generalisation is relevant to us because it allows us to define a function
+that returns all the parse trees of $G$ that yield $w$, which we can give to
+our \textsc{Diagnose} routine in the event of a false-positive conter-example.
+The needed specialisation is given in (Figure\ \ref{list:parse-trees}).
+
+\begin{figure}[htbp]
+  \caption{ \textsc{ParseTrees} implementation. Returns all parse trees for a
+    grammar $G$ yielding a string $w$ encoded as a tree $t$ containing two types
+    of node: $[X,x]$ \textit{non-terminal yield} nodes and $[X\rightarrow YZ]$
+    \textit{rule} nodes. The root is $[S,w]$, and in any path through the tree,
+    node types strictly alternate.\\\\$[X\rightarrow YZ]$ nodes have two
+    children: $[Y,y]$ and $[Z,z]$, and yield $yz$.\\ $[X,x]$ nodes have children
+    $[X\rightarrow\alpha]$ yielding $x$ \\ $[X,x]$ nodes must have at-least one
+    child unless $|w| = 1$.  }\label{list:parse-trees}
+  \input{aux/parse_trees.tex}
+\end{figure}
 
 ## Implementation {#sec:implementation}
 
