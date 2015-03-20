@@ -559,11 +559,15 @@ alphabet, and $S \in N$ the starting non-terminal. From these, it attempts to
 learn the productions in the target grammar.
 
 The algorithm repeatedly requests counter-examples, and uses them to add or
-remove productions from the grammar it is learning, $G^\prime$. The work done in
-response to each counter-example brings $G^\prime$ closer to the target grammar,
-until there are no counter-examples left, at which point it is equivalent to the
-target. Pseudocode is provided in Algorithm\ \ref{algo:kbounded}, with
-supporting definitions in
+remove productions from the grammar it is learning, $G^\prime$. If it is given a
+false-positive $c_+$, it finds a parse tree $t$ of G yielding $c_+$ and analyses
+it to find and remove a \textit{bad rule}: A rule in $G^\prime$ used in $t$ that
+is not in the target. If it is given a false-negative, $c_{-}$, it introduces
+new rules to $G^\prime$, at least one of which is guaranteed to be in the
+target. In this way, each counter-example is used to bring $G^\prime$ closer to
+the target grammar, until there are no counter-examples left, at which point it
+is equivalent to the target. Pseudocode is provided in
+Algorithm\ \ref{algo:kbounded}, with supporting definitions in
 Algorithms\ \ref{algo:diagnose},\ \ref{algo:candidate}.
 
 \begin{algorithm}
@@ -734,12 +738,16 @@ hard-coding $k = 2$: Because we know that rules must either be in
 routine return only such rules.
 
 If we assume (naïvely) that the oracle always gives perfect answers, we can go
-further still. A perfect oracle will never, through the answers it provides to
-our algorithm's queries, cause a rule in the target grammar to be removed. As
-such, we can have our algorithm cache previous responses from the oracle. Using
-this technique, we can avoid adding rules we already know are bad back into the
-grammar, and we can also reduce the number of queries made to the oracle. These
-optimisations will yield significant improvements in our cost model.
+further still. Such an oracle must necessarily be (a) deterministic, and (b)
+incapable, through its responses, of removing a valid rule from the grammar.
+Observation (a) allows us to cache its responses, knowing that they will not
+change at a later date. Observation (b) states that any rule that is removed in
+the running of the algorithm must not be in the target grammar, and so we can
+avoid re-adding such rules in the \textsc{Candidate} routine. These
+optimisations will yield significant improvements in our cost model, especially
+since Angluin's original \textsc{Candidate} routine cast a wide net in order to
+ensure that at least one rule from the target grammar was introduced: Many of
+these rules would then have to be removed again in subsequent iterations.
 
 Whilst our restriction to CRF grammars has allowed us to make some useful
 simplifications, it seems as though our new algorithm only learns languages in
