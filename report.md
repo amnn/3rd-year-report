@@ -14,6 +14,9 @@ abstract: |
 ...
 \pagebreak
 
+```{.clojure}
+```
+
 # Introduction
 Language inference is a fairly mature topic, with regular languages in
 particular receiving much attention in the literature. Comparatively, the body
@@ -552,7 +555,7 @@ providing less information). As our implementation will be relying on human inpu
 to form the answers to its queries, this preference becomes more compelling: A
 weaker oracle, means less work for the user.
 
-## Algorithm
+## Algorithm {#sec:k-bounded-algo}
 
 As input, the algorithm takes $N$, the set of non-terminals, $\Sigma$, the
 alphabet, and $S \in N$ the starting non-terminal. From these, it attempts to
@@ -651,7 +654,7 @@ Algorithms\ \ref{algo:diagnose},\ \ref{algo:candidate}.
 \end{algorithmic}
 \end{algorithm}
 
-## Restriction to Chomsky Reduced Form
+## Restriction to Chomsky Reduced Form {#sec:k-bounded-restrict}
 
 It is obvious, but worth mentioning, that neither $k$ nor $N$ are trivial
 parameters to the algorithm: When learning some language $L$, if we fix
@@ -808,7 +811,7 @@ superfluous rules which it will eliminate eventually through the running
 of the algorithm.
 
 \begin{figure}[htbp]
-  \caption{Implementation of pruning in \textit{Clojure}}
+  \caption{Implementation of \textit{pruning} in \textit{Clojure}.}
   \input{aux/prune.tex}
 \end{figure}
 
@@ -924,7 +927,7 @@ every mentioned non-terminal also contributes.
 
 Using this definition of \textit{contribution} we may define a propositional
 formula, $\phi$ mentioning a propositional variable $c_X$ for every $X\in N$ in
-such a way that for an assigment $\mathcal{A}$, $\mathcal{A}\not{\vdash}\phi$
+such a way that for an assignment $\mathcal{A}$, $\mathcal{A}\not{\vdash}\phi$
 iff $c_Y\mapsto 0 \in \mathcal{A}$ for some $Y\in C$:
 
 \begin{align*}
@@ -990,7 +993,7 @@ $\Theta({\lvert{}w\rvert}^3\lvert G\rvert)$ time, where $G$ is in Chomsky
 modifications are those omitting cases, so their details have been elided).
 
 \begin{figure}[htbp]
-  \caption{Tabulation scheme for \textsc{CYK}. I take $\llbracket P\rrbracket$
+  \caption{Tabulation scheme for \textsc{CYK}. We take $\llbracket P\rrbracket$
     to denote the truth value of the proposition $P$, similar to an indicator
     function for truth values.}\label{fig:cyk-tab}
   \begin{align*}
@@ -1052,70 +1055,71 @@ The needed specialisation is given in (Figure\ \ref{list:parse-trees}).
     node types strictly alternate.\\\\$[X\rightarrow YZ]$ nodes have two
     children: $[Y,y]$ and $[Z,z]$, and yield $yz$.\\ $[X,x]$ nodes have children
     $[X\rightarrow\alpha]$ yielding $x$ \\ $[X,x]$ nodes must have at-least one
-    child unless $|w| = 1$.  }\label{list:parse-trees}
+    child unless $|x| = 1$.  }\label{list:parse-trees}
   \input{aux/parse_trees.tex}
 \end{figure}
 
 ## Implementation {#sec:implementation}
 
-\subsubsection*{Learn}
-``` {.clojure .numberLines}
-(defn learn
-  [member* counter* nts]
-  (let [member* (memoize member*)]
-    (loop [g (init-grammar nts), blacklist \#{}]
-      (let [pg (prune-cfg g)]
-        (if-let [c (counter* pg)]
-          (if-let [t (parse-trees g c)]
-            (let [bad-rules  (diagnose member* t)
-                  bad-leaves (filter cnf-leaf? bad-rules)]
-              (recur (reduce remove-rule g bad-rules)
-                     (into blacklist bad-leaves)))
+The \textit{Clojure} implementation of Angluin's algorithm will be, for the most
+part, a faithful translation of the pseudo-code found in
+Section\ \ref{sec:k-bounded-algo} although in parts we will modify it to take
+advantage of the simplifications previously discussed.
 
-            (let [new-rules (candidate nts blacklist c)]
-              (recur (reduce add-rule g new-rules)
-                     blacklist)))
-          pg)))))
-```
+\begin{figure}[htbp]
+  \caption{\textsc{Learn} implementation.}\label{list:learn}
+  \input{aux/learn.tex}
+  \input{aux/init_g.tex}
+\end{figure}
 
-``` {.clojure .numberLines}
-(defn- init-grammar
-  [nts]
-  (reduce add-rule (cfg)
-          (for [a nts b nts c nts]
-            [a b c])))
-```
+Firstly, as suggested in Section\ \ref{sec:k-bounded-restrict}, this
+implementation forgoes the $k$ parameter, and always generates CRF
+grammars. And, in order to reduce the number of oracle queries made, we make use
+of \textit{Clojure}'s \texttt{memoize} function to cache responses from
+\texttt{member*} (Figure\ \ref{list:learn},\ Line\ 3).
 
-\subsubsection*{Diagnose}
-``` {.clojure .numberLines}
-(defn- diagnose
-  [member* t]
-  (letfn [(consume-child [state [rule \& children]]
-            (if-let [bad-child (some (fn [{cnt :nt cy :yield :as child}]
-                                       (when-not (member* cnt cy) child))
-                                     children)]
-              (update-in state [0] conj  bad-child)
-              (update-in state [1] conj! rule)))]
-    (loop [q         (queue t)
-           bad-rules (transient \#{})]
-      (if (seq q)
-        (let [{:keys [children]} (peek q)
-              [q* bad-rules*] (reduce consume-child
-                                      [(pop q) bad-rules]
-                                      children)]
-          (recur q* bad-rules*))
-        (persistent! bad-rules)))))
-```
+\begin{figure}[htbp]
+  \caption{\textsc{Candidate} implementation.}\label{list:candidate}
+  \input{aux/candidate.tex}
+\end{figure}
 
-\subsubsection*{Candidate}
-``` {.clojure .numberLines}
-(defn- candidate
-  [nts blacklist toks]
-  (for [t toks, nt nts,
-        :let  [leaf [nt t]]
-        :when (not (blacklist leaf))]
-    leaf))
-```
+Our knowledge that the grammar will be in CRF coupled with our assumption that
+the oracle is perfect, allows us to use the non-terminals provided as a
+parameter, to generate all possible branching rules ahead of time
+(Figure\ \ref{list:learn},\ \texttt{init-grammar}). It follows from our perfect
+oracle assumption that the branching rules needed in the target grammar will
+never be removed, so this saves us the trouble of having to generate them at
+every invocation of the \textsc{Candidate} routine. All that is left for our
+implementation of \textsc{Candidate} (Figure\ \ref{list:candidate}) to do, is to
+fill in the leaf rules for each non-terminal.
+
+\begin{figure}[htbp]
+  \caption{\textsc{Diagnose} implementation.}\label{list:diagnose}
+  \input{aux/diagnose.tex}
+\end{figure}
+
+Another avenue for modification is in ensuring that once the oracle provides a
+counter-example, the grammar is modified in such a way that the oracle can never
+produce that counter-example again. The termination argument
+in\ \cite{angluin1987learning} shows that the original algorithm deals with
+false-negative counter-examples, when the oracle is perfect, but we can improve
+the way false-positives are handled w.r.t minimising future oracle queries:
+
+When faced with a false-positive counter-example, $c_+$, we do not find just one
+parse tree to diagnose for a bad rule. Instead, we maximise the information that
+can be gained from $c_+$ by finding \textit{all possible} parse trees, and
+diagnosing each one individually, to get a bad rule from each
+(Figure\ \ref{list:learn},\ \texttt{learn},\ Line\ 7;
+Figure\ \ref{list:diagnose}). This technique proves particularly useful as the
+intermediate grammars produced by this learning algorithm tend to be highly
+ambiguous, leading to many possible parses for any one string.
+
+We must also prepare for the eventuality that the \textsc{Candidate} routine may
+re-introduce a rule that makes some $c_+$ a viable false-positive again. To
+combat this, we maintain a \texttt{blacklist} of rules that have been removed
+(Figure\ \ref{list:learn},\ \texttt{learn},\ \ Line\ 11), and when the
+\textsc{Candidate} routine is generating new rules, it filters out those already
+in the \texttt{blacklist} (Figure\ \ref{list:candidate},\ Line\ 5).
 
 # A Sampling Oracle
 

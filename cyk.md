@@ -39,5 +39,5 @@
                       k (range 1 i)        ;; Split point
                       b branches]          ;; Rule
                   [i j k b]))
-                  (get-in [n 0 root]))))
+        (get-in [n 0 root]))))
 ```
