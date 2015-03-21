@@ -1177,9 +1177,9 @@ the user.
 Implementing sampling takes some careful thought. Context-free languages being
 potentially infinite, we cannot fall back on sampling uniformly. Indeed, it is
 in our interest to favour shorter strings, as those will be easier for the user
-to check. We will produce a sample of size $n$ by enumerating the language in
-length order, and picking a string at a rate of 1 in $r$ until we have $n$. We
-use $r$ to change the number of strings we consider:
+to check. We will produce a sample of $n$ short strings by enumerating the
+language in length order, and picking a string at a rate of 1 in $r$ until we
+have $n$. We use $r$ to change the number of strings we consider:
 \begin{align*}
   \text{Let } S_n & = \text{\#strings in language considered}
   \\ \mathbb{E}[S_0] & = 0
@@ -1195,6 +1195,28 @@ an efficient way to enumerate the language of a context-free grammar in length
 order.
 
 ## Enumerating a Context-Free Language
+
+One method we might try is to enumerate parse trees. Enumerating $L(G)$ where
+$G=(N,\Sigma,\mathcal{R},S)$ using this approach is equivalent to traversing a
+graph $D$ by breadth-first search, starting at $v_S$ and outputting
+$w\in\Sigma^*$ when we visit $v_w$:
+\begin{align*}
+  V(D) & = \{v_\alpha : \alpha\in(\Sigma\cup N)^*\}\\
+  E(D) & = \{(v_\alpha,v_\beta) : \alpha \Rightarrow_l^* \beta\}
+\end{align*}
+If $G$ is in CRF --- as it will be in our case --- this approach will produce a
+sequence in length order. However, in cases where each non-terminal has more
+than one production, the frontier of the search will grow exponentially with
+respect to the depth. Furthermore, in cases where $G$ is ambiguous, this
+strategy will return a sequence with repetitions. All in all, this routine is
+not ideal for our needs.
+
+Instead we will enumerate $\Sigma^*$ in length order, and for each
+$w\in\Sigma^*$, check if $w\in L(G)$: If it is, output it, if not continue. This
+simultaneously ensures that the sequence will be in length order, and will
+contain each string only once. Having to check each $w\in\Sigma^*$
+seems potentially inefficient, however by adapting a parsing algorithm, it is
+possible to re-use work from previous strings.
 
 ### A Modified Earley Parser
 
