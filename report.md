@@ -897,7 +897,7 @@ theoretic sense) from $S$. In our implementation (Figure\ \ref{list:reach}), we
 do not explicitly construct $R$, but implicitly traverse it by a breadth-first
 search.
 
-### Contribution and \textsc{HornSAT}
+### Contribution and \textsc{HornSAT} {#sec:contribution}
 
 As with reachability, it will be useful here to concentrate on the complement of
 \textit{non-contribution}: Given a grammar $G = (N,\Sigma,\mathcal{R},S)$, find
@@ -1333,9 +1333,57 @@ $C_k(0,S^\prime)$ in increasing order of k.
   \input{aux/token_consumer.tex}
 \end{figure}
 
-### Nullity and \textsc{HornSAT}
+### Nullability and \textsc{HornSAT}
 
-words
+\cite{journals/cj/AycockH02} highlights an issue with Earley's implementation
+in \cite{Earley:1983:ECP:357980.358005}, when faced with \textit{nullable}
+non-terminals.
+
+\begin{definition}[Nullable]
+  Given a grammar $G=(N,\Sigma,\mathcal{R},S)$, a non-terminal $X\in N$ is
+  nullable iff $X\Rightarrow^*\varepsilon$, or equivalently, the set of nullable
+  terms $N^\varepsilon\subseteq N$ can be defined in recursively in terms of
+  itself:
+  \begin{align*}
+    X\rightarrow Y_0\ldots Y_k\in\mathcal{R}
+    \wedge \{Y_i\}_i \subseteq N^\varepsilon
+    \implies X \in N^\varepsilon
+    \tag*{$k\geq 0$}
+  \end{align*}
+\end{definition}
+
+The solution given is, when predicting a nullable non-terminal, to also move the
+rule position over it in the rule which originates it. However, in order to do
+this we must be able to compute the set of nullable non-terminals.
+
+Like our strategy in Section\ \ref{sec:contribution}, we turn to propositional
+logic to guide us. For each $X\in N$, take $n_X$ to be a propositional variable,
+then we may construct a $\phi$ s.t. for an assignment $\mathcal{A}$,
+$\mathcal{A}\not{\vdash}\phi$ iff $n_Y \mapsto 0\in\mathcal{A}$ for some $Y\in
+N^\varepsilon$:
+\begin{align*}
+  \text{Let } R_{X,i} & \equiv X \rightarrow Y_{i,0}\ldots Y_{i,k_i}\\
+  \phi & \equiv \bigwedge_{X\in N} \left(
+  \bigvee_{R_{X,i}\in\mathcal{R}} \bigwedge_{j=0}^{k_i} n_{Y_{i,j}}
+  \right) \implies n_X\\
+  & \equiv \bigwedge_{R_{X,i}\in\mathcal{R}}
+  \left( \bigwedge_{j=0}^{k_i} n_{Y_{i,j}}\right)
+  \implies n_X
+\end{align*}
+$\phi$ is a Horn formula, so once again, a minimal satisfying assignment of
+$\phi$ (returned by \textsc{HornSAT}) can be translated naturally into
+$N^\varepsilon$.
+
+This is remarkably similar to our approach to calculating the set of
+\textit{contributing} non-terminals. In fact, all that we must change is to
+remove all rules containing terminals before applying \textsc{HornSAT}, as in
+Figure\ \ref{list:null}.
+
+\begin{figure}[htbp]
+  \caption{An implementation of nullability using
+    \textsc{HornSAT}.}\label{list:null}
+  \input{aux/null.tex}
+\end{figure}
 
 ## Algorithm
 
