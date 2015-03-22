@@ -793,7 +793,7 @@ learn any context-free language by applying a straightforward transformation.
   \end{proof}
 \end{theorem}
 
-## Pruning a Context-Free Grammar
+## Pruning a Context-Free Grammar {#sec:prune-cfg}
 
 It will be advantageous for us to remove extraneous rules and non-terminals from
 the grammar we are learning before performing oracle queries on it. Removing
@@ -1220,7 +1220,118 @@ possible to re-use work from previous strings.
 
 ### A Modified Earley Parser
 
-words
+The Earley parser\ \cite{Earley:1983:ECP:357980.358005} is a dynamic programming
+algorithm capable of recognising any context-free grammar. In its simplest form,
+it is a recogniser, that when given a grammar $G$ and a string $w$, will decide
+whether $w\in L(G)$. Like the CYK algorithm we described earlier, it can also be
+adapted to return a parse tree instead, although we are more interested in
+inverting its behaviour so that instead of recognising strings in the language,
+it outputs them. But first, let us see its inner workings.
+
+\begin{figure}[htbp]
+  \caption{Data structure representing an Earley item. \texttt{deriv-len} and
+    \texttt{toks} are augmentations to allow for the calculation of the
+    derivation length for a word $w$ and the language sequence of a grammar $G$
+    respectively.}\label{list:earley-item}
+  \input{aux/earley_item.tex}
+\end{figure}
+
+An Earley parser keeps track of a state set: $S_k$ for each boundary between
+symbols in the input, $0 \leq k \leq \lvert w \rvert$ that it has crossed so
+far. Each state set contains \textit{Earley items}
+(Figure\ \ref{list:earley-item}) of the form
+$(X\rightarrow\alpha\bullet\beta,i)$, for a rule $X\rightarrow\alpha\beta$, a
+position in the rule ($\bullet$) splitting the symbols that have already been
+matched (to the left of it) and the symbols still expected (to the right of it),
+and an origin position $i$ for the boundary at which the rule started being
+matched.
+
+\begin{figure}[htbp]
+  \caption{Earley States, implemented as queues.}\label{list:earley-states}
+  \input{aux/earley_state.tex}
+\end{figure}
+
+\begin{figure}[htbp]
+  \caption{Constraints satisfied by state sets. $S^\prime$ is a nominal start
+    state that we add so that we can say $w\in L(G)$ iff
+    $(S^\prime\rightarrow{}S\bullet,0)\in{}S_{\lvert
+      w\rvert}$.}\label{fig:earley-states}
+  \begin{align*}
+    S_0 & = \{(S^\prime\rightarrow\bullet S,0)\}\\[3mm]
+    (X\rightarrow\alpha\bullet y\beta, i)\in S_k,~w_k = y^{(1)}
+      & \implies (X\rightarrow\alpha y\bullet\beta, i)\in S_{k+1}
+      \tag{Shift}\\[3mm]
+    (X\rightarrow\gamma\bullet, i)\in S_k
+      & \implies \forall(Y\rightarrow\alpha\bullet X\beta, j)\in S_i
+      \tag{Reduce}\\
+      & \qquad\qquad (Y\rightarrow\alpha X\bullet\beta, j)\in S_k\\[3mm]
+    (X\rightarrow\alpha\bullet Y\beta ,i)\in S_k,~Y\in N
+      & \implies \forall Y\rightarrow\gamma\in\mathcal{R}
+      \tag{Predict}\\
+      & \qquad\qquad (Y\rightarrow\bullet\gamma, k)\in S_k
+  \end{align*}
+\end{figure}
+
+In our implementation (Figure\ \ref{list:earley-parser}), we will represent the
+state sets $S_k$ as queues (Figure\ \ref{list:earley-states}). We will create
+them in increasing order of $k$, being careful not to re-add items that we have
+already processed (Figure\ \ref{list:earley-parser},\ Lines 8--9), as this will
+cause an infinite loop. We will also avoid storing all previous state
+sets. Instead it suffices for us to keep track of the state set we are working
+on, and all previous \textit{reduction mappings} $R_j$ from non-terminals $X$,
+to items $(Y\rightarrow\alpha\bullet X\beta, i)\in S_j$, waiting for reductions
+of items with rules from $X$ starting at $k$. Then, when we perform a
+\textit{reduction} of an item $(X\rightarrow\gamma\bullet,j)$, we simply take
+all the items in $R_j(X)$, advance their rule position, and add them to $S_k$,
+this also saves us the trouble of searching $S_j$ for rules of the correct form.
+
+\begin{figure}[htbp]
+  \caption{Implementation of language sequence.}\label{list:lang-seq}
+  \input{aux/lang_seq.tex}
+\end{figure}
+
+From this implementation of the recogniser, we can create a routine that
+generates all strings in the language (Figure\ \ref{list:lang-seq}) with the
+following modifications:
+\begin{itemize*}
+  \item Change condition (1) of the \textit shift rule in
+    Figure\ \ref{fig:earley-states} to $y\in\Sigma$. In other words, when we
+    encounter a terminal symbol, we will shift it indiscriminately to advance
+    our traversal.
+  \item Augment Earley items with the sequence of terminals they have matched.
+    Whenever we shift over a terminal, as well as advancing the position in the
+    rule, add the terminal to this sequence.
+  \item Keep a mapping $C_k$ for each boundary position $k$ from origin
+    positions $i$ and non-terminals $X$ s.t. $C_k(i,X)$ is the set of strings
+    yielded by derivations from $X$ starting at boundary $i$ and ending at
+    boundary $k$. Whenever we reduce one of our augmented items,
+    $(X\rightarrow\gamma\bullet,i,w)$ at step $k$, we ensure $w\in C_k(i,X)$.
+  \item We no longer have a parameter $w$ over which we may iterate, so instead
+    we will keep generating $S_k$ for larger and larger $k$ until we produce an
+    empty state set. When this happens it is safe to terminate as we know that
+    we cannot generate any further strings in the language after this. Note that
+    for an infinite language this will never happen.
+\end{itemize*}
+\begin{align*}
+  \intertext{Observe that}
+  C_k(0,S^\prime) & = \{w\in L(G) : \lvert w \rvert = k\}\\
+  \intertext{So we may construct the language as}
+  L(G) & = \bigcup_{k \geq 0}C_k(0,S^\prime)
+\end{align*}
+Furthermore, we may iterate $L(G)$ in length order by iterating through each
+$C_k(0,S^\prime)$ in increasing order of k.
+
+\begin{figure}
+  \caption{An augmented Earley Parser. Given a state $S_{k-1}$ and an index $k$,
+    returns a new state. Here the state is represented by a queue of items to
+    process, the reduction mapping, and the completion mapping
+    (Figure~\ref{list:earley-states}). The condition that decides whether to
+    shift over a terminal is abstracted into the \texttt{shift?} predicate so
+    this function can be used in a fold to either recognise a string or
+    enumerate the language sequence.}\label{list:earley-parser}
+
+  \input{aux/token_consumer.tex}
+\end{figure}
 
 ### Nullity and \textsc{HornSAT}
 
@@ -1333,6 +1444,15 @@ words
 ## \textsc{HornSAT} {#app:horn-sat}
 
 words
+
+## Ancillary Definitions for Earley Parser {#app:ancillary-earley}
+
+% reset-state
+% classify
+% shift / perform-shift / enqueue-shift
+% perform-reduxns / complete-item
+% reduxn-key / associate-reduxn
+% processed-key
 
 ## Strongly Connected Components
 

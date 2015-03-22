@@ -1,6 +1,7 @@
 PARAMS =
 LISTINGS = prune.md reach.md contribution.md cyk.md parse_trees.md learn.md \
-		init_g.md diagnose.md candidate.md interactive_member.md
+		init_g.md diagnose.md candidate.md interactive_member.md \
+		lang_seq.md earley_item.md earley_state.md token_consumer.md
 
 all: out/report.pdf
 
