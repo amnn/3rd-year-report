@@ -1185,8 +1185,7 @@ have $n$. We use $r$ to change the number of strings we consider:
   \\ \mathbb{E}[S_0] & = 0
   \\ \mathbb{E}[S_n] & = 1 + {\frac{1}{r}}\mathbb{E}[S_{n-1}]
                            + (1-{\frac{1}{r}})\mathbb{E}[S_n]
-  \\ \frac{1}{r}\mathbb{E}[S_n] & = 1 + {\frac{1}{r}}\mathbb{E}[S_{n-1}]
-  \\ \mathbb{E}[S_n] & = r + \mathbb{E}[S_{n-1}]
+  \\ & = r + \mathbb{E}[S_{n-1}]
   \\ & = nr
 \end{align*}
 This form of sampling is already available to us in the form of \textit{stream
@@ -1342,11 +1341,11 @@ non-terminals.
 \begin{definition}[Nullable]
   Given a grammar $G=(N,\Sigma,\mathcal{R},S)$, a non-terminal $X\in N$ is
   nullable iff $X\Rightarrow^*\varepsilon$, or equivalently, the set of nullable
-  terms $N^\varepsilon\subseteq N$ can be defined in recursively in terms of
+  terms $N^\varepsilon\subseteq N$ can be defined recursively in terms of
   itself:
   \begin{align*}
     X\rightarrow Y_0\ldots Y_k\in\mathcal{R}
-    \wedge \{Y_i\}_i \subseteq N^\varepsilon
+    \wedge \{X\} \nsubseteq \{Y_i\}_i \subseteq N^\varepsilon
     \implies X \in N^\varepsilon
     \tag*{$k\geq 0$}
   \end{align*}
@@ -1387,7 +1386,22 @@ Figure\ \ref{list:null}.
 
 ## Algorithm
 
-words
+We put everything together to get our sample-based counter-example routine
+(Figure\ \ref{list:interactive-counter}).
+
+\begin{figure}[htbp]
+  \caption{Sample based implementation of $\textsc{Counter}^*$.}
+  \label{list:interactive-counter}
+  \input{aux/interactive_counter.tex}
+\end{figure}
+
+We have (arbitrarily) chosen to pick elements from the language sequence at a
+rate of $1:n$. Empirically, this seems to provide good results with the expected
+number of strings considered being $n^2$.
+
+Also note that we have separated the concern of getting the user's response from
+the main $\textsc{Counter}^*$ routine. This will make interfacing with a test
+harness easier.
 
 # Compensating for an Imperfect Oracle
 
