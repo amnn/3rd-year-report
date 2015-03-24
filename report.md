@@ -1661,7 +1661,96 @@ an improvement based on a generalisation of Dijkstra's algorithm
 
 ## Online Kernel Logistic Regression {#sec:klr}
 
-words
+The rules of the grammar we are learning $G=(N,\Sigma,\mathcal{R},S)$, are
+constructed as
+\begin{align*}
+   \mathcal{R} & =~\{X\rightarrow\alpha\in\widetilde{\mathcal{R}}
+                      : l_X(\alpha) \geq \tau\}
+  \\\text{where } \widetilde{\mathcal{R}} &=~\{X\rightarrow{}a
+  :X\in{}N,a\in\Sigma\}
+  \\ & \cup~\{X\rightarrow{}YZ{}:{}X,Y,Z\in N\}
+\end{align*}
+where $l_{X}(\alpha)$ is the likelihood estimate, and $0\leq\tau<\frac{1}{2}$ is
+a threshold probability s.t. rules with likelihoods lower than $\tau$ can be
+removed.
+
+Likelihood values, in turn, are calculated in terms of
+$\vec{\omega}\in\mathbb{R}^{\abs{\widetilde{\mathcal{R}}}}$ (initially
+$\vec{\omega} = \vec{0}$), and a \textit{kernel} function $K :
+\widetilde{\mathcal{R}}^2 \rightarrow \mathbb{R}$.
+
+\begin{align*}
+  l_X(\alpha) & = \sigma(w_X(\alpha))
+  \\ \text{where } w_X(\alpha) & =
+    \sum_{R\in\widetilde{\mathcal{R}}}
+    \omega_RK(R,X\rightarrow\alpha)
+\end{align*}
+
+\begin{figure}[htbp]
+  \caption{The \textit{sigmoid} function.}
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[
+    	legend pos=north west,
+        axis x line=middle,
+        axis y line=middle,
+        grid = major,
+        width=9cm,
+        height=6cm,
+        grid style={dashed, gray!30},
+        xmin=-10,
+        xmax= 10,
+        ymin= 0,
+        ymax= 1,
+        %axis background/.style={fill=white},
+        xlabel=x,
+        ylabel=y,
+        tick align=outside,
+        enlargelimits=false]
+      % plot the stirling-formulae
+      \addplot[domain=-10:10,black,,samples=500] {1/(1+exp(-x))};
+      \addlegendentry{$\sigma(x)=\frac{1}{1+e^{-x}}$}
+    \end{axis}
+  \end{tikzpicture}
+\end{figure}
+
+The kernel function can be used to link the behaviour rules together, for
+example if $K(X\rightarrow\alpha,Y\rightarrow\beta)>0$, then $l_X(\alpha)\propto
+l_Y(\beta)$, and if it is negative, this describes an inversely proportional
+relationship. Unfortunately, these relationships aren't universal: A kernel that
+may speed up the learning of one grammar may slow down, or even prevent, the
+learning of another. We can always rely on the identity kernel to work, however:
+
+$$
+  I(R_1,R_2) =
+    \begin{dcases*}
+      1 & when $R_1 = R_2$\\
+      0 & otherwise
+    \end{dcases*}
+$$
+
+From our definitions, we can see how to modify $\vec{\omega}$ in response to
+counter-examples:
+
+\begin{description}
+  \item[False Positive] Diagnose a bad rule, $R = X\rightarrow\alpha$, and
+    update ${\omega_R\gets\omega_R-\rho\cdot l_X(\alpha)}$ for some fixed
+    \textit{learning rate} $0 < \rho$: the more likely we thought $R$ was to be
+    in the language, the more negative we make $\omega_R$, and consequently,
+    $l_X(\alpha) \rightarrow 0$.
+  \item[False Negative] Update ${\vec{\omega}\gets\eta\cdot\vec{\omega}}$, for
+    some fixed \textit{entropy} ${0<\eta<1}$. Thus, for all
+    $X\rightarrow\alpha\in\widetilde{\mathcal{R}}$,
+    $l_X(\alpha)\rightarrow\frac{1}{2}$.
+\end{description}
+
+At no point do we ever \textit{increase} the likelihood of a rule. However, when
+a rule is removed, the probabilities of other rules from the same non-terminal
+in the resulting SCFG will increase, yielding the desired effect of promoting
+target rules.
+
+A full implementation of these procedures is available in Section\ \ref{app:klr}
+of the Appendices.
 
 ## Loosening the CRF Restriction {#sec:loosen}
 
@@ -1780,6 +1869,8 @@ words
 ## Strongly Connected Components
 
 words
+
+## Online Kernel Logistic Regression Implemented {#app:klr}
 
 # Appendix B <!-- Tests -->
 
