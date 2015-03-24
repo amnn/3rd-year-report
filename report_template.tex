@@ -1,7 +1,7 @@
 \documentclass[$if(fontsize)$$fontsize$,$endif$$if(lang)$$lang$,$endif$$if(papersize)$$papersize$,$endif$$for(classoption)$$classoption$$sep$,$endfor$]{$documentclass$}
 
 % Custom Packages
-\usepackage{algpseudocode}
+\usepackage[noend]{algpseudocode}
 \usepackage{algorithm}
 \usepackage{algorithmicx}
 
@@ -34,10 +34,14 @@
 \theoremstyle{remark}
 \newtheorem{remark}{Remark}
 
+\theoremstyle{plain}
+\newtheorem{lemma}{Lemma}
+
 \floatstyle{ruled}
 \restylefloat{figure}
 
 \AtBeginEnvironment{Shaded}{\small}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}
 
 % TeXCount directives
 

@@ -2,7 +2,8 @@ PARAMS =
 LISTINGS = prune.md reach.md contribution.md cyk.md parse_trees.md learn.md \
 		init_g.md diagnose.md candidate.md interactive_member.md \
 		lang_seq.md earley_item.md earley_state.md token_consumer.md \
-		null.md interactive_counter.md
+		null.md interactive_counter.md scfg_sample.md \
+		make_strongly_consistent_star.md
 
 all: out/report.pdf
 

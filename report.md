@@ -320,6 +320,7 @@ ancillary functions. In this section, I outline the dependencies used in the
 project.
 
 \phantomsection{}
+\addcontentsline{toc}{subsubsection}{\texttt clojure.data/priority-map}
 \subsubsection*{\texttt{clojure.data/priority-map} \\
   \small{\cite{clojure_data_prioritymap}}}
 
@@ -327,6 +328,7 @@ An ordered key-value data structure sorted by its value, with a uniqueness
 constraint on keys. Used in situations similar to a heap.
 
 \phantomsection{}
+\addcontentsline{toc}{subsubsection}{\texttt bigml/sampling}
 \subsubsection*{\texttt{bigml/sampling} \\
   \small{\cite{bigml_sampling}}}
 
@@ -334,6 +336,7 @@ A library of sampling functions, for picking random elements from both finite
 collections and infinite streams.
 
 \phantomsection{}
+\addcontentsline{toc}{subsubsection}{\texttt net.mikera/core.matrix}
 \subsubsection*{\texttt{net.mikera/core.matrix} \\
   \small{\cite{net_mikera_core_matrix}}}
 
@@ -343,6 +346,7 @@ standard library collections which are not well-suited to array programming
 operations.
 
 \phantomsection{}
+\addcontentsline{toc}{subsubsection}{\texttt net.mikera/vectorz-clj}
 \subsubsection*{\texttt{net.mikera/vectorz-clj} \\
   \small{\cite{net_mikera_vectorz_clj}}}
 
@@ -1193,16 +1197,19 @@ This form of sampling is already available to us in the form of \textit{stream
 an efficient way to enumerate the language of a context-free grammar in length
 order.
 
-## Enumerating a Context-Free Language
+## Enumerating a Context-Free Language {#sec:enumerate}
 
 One method we might try is to enumerate parse trees. Enumerating $L(G)$ where
-$G=(N,\Sigma,\mathcal{R},S)$ using this approach is equivalent to traversing a
-graph $D$ by breadth-first search, starting at $v_S$ and outputting
-$w\in\Sigma^*$ when we visit $v_w$:
-\begin{align*}
-  V(D) & = \{v_\alpha : \alpha\in(\Sigma\cup N)^*\}\\
-  E(D) & = \{(v_\alpha,v_\beta) : \alpha \Rightarrow_l^* \beta\}
-\end{align*}
+$G=(N,\Sigma,\mathcal{R},S)$ using this approach is equivalent to traversing the
+\textit{derivation graph} of G by breadth-first search, starting at $v_S$
+and outputting $w\in\Sigma^*$ when we visit $v_w$.
+\begin{definition}[Derivation graph]\label{def:deriv-graph}
+  A graph $D$ s.t.
+  \begin{align*}
+    V(D) & = \{v_\alpha : \alpha\in(\Sigma\cup N)^*\}\\
+    E(D) & = \{(v_\alpha,v_\beta) : \alpha \Rightarrow_l \beta\}
+  \end{align*}
+\end{definition}
 If $G$ is in CRF --- as it will be in our case --- this approach will produce a
 sequence in length order. However, in cases where each non-terminal has more
 than one production, the frontier of the search will grow exponentially with
@@ -1223,9 +1230,9 @@ The Earley parser\ \cite{Earley:1983:ECP:357980.358005} is a dynamic programming
 algorithm capable of recognising any context-free grammar. In its simplest form,
 it is a recogniser, that when given a grammar $G$ and a string $w$, will decide
 whether $w\in L(G)$. Like the CYK algorithm we described earlier, it can also be
-adapted to return a parse tree instead, although we are more interested in
-inverting its behaviour so that instead of recognising strings in the language,
-it outputs them. But first, let us see its inner workings.
+adapted to return a parse tree, although we are more interested in inverting its
+behaviour so that instead of recognising strings in the language, it outputs
+them. But first, let us see its inner workings.
 
 \begin{figure}[htbp]
   \caption{Data structure representing an Earley item. \texttt{deriv-len} and
@@ -1252,7 +1259,7 @@ matched.
 
 \begin{figure}[htbp]
   \caption{Constraints satisfied by state sets. $S^\prime$ is a nominal start
-    state that we add so that we can say $w\in L(G)$ iff
+    non-terminal that we add so that we can say $w\in L(G)$ iff
     $(S^\prime\rightarrow{}S\bullet,0)\in{}S_{\lvert
       w\rvert}$.}\label{fig:earley-states}
   \begin{align*}
@@ -1405,23 +1412,261 @@ harness easier.
 
 # Compensating for an Imperfect Oracle
 
-words
+Until now, we have been working under the assumption that our oracle is perfect.
+However, we know that this is not the case, and when our human oracle makes a
+mistake, our algorithm, as it stands, is unable to recover: Once a rule required
+by the target grammar is removed, it cannot be added again.
+
+One possible fix is to reset the algorithm when such a situation is detected:
+When given a false negative example from $\textsc{Counter}^*$, we clear our
+remembered responses and rule blacklist. The changes needed for this approach
+are explained in Section\ \ref{app:reset-k-bounded} of the Appendices, and in
+our analysis, we will deal with this variant.
+
+Whilst resetting does mean the algorithm can now recover from an error, it does
+not recover well: For the learning routine to terminate, the oracle must still
+provide enough accurate responses contiguously to fully determine the grammar.
+The probability of this becomes vanishingly low as the grammars get more
+complicated and the oracles become less accurate.
+
+Instead, we will keep track of a likelihood estimate for each rule. Responses to
+queries will guide our choice of estimate: If the oracle suggests that a rule
+should be removed, then we will reduce its likelihood. When the likelihood drops
+below a certain value, we will remove the rule from the grammar, and if as a
+result of such a removal, we are given a false-positive counter-example, we
+reduce our confidence uniformly across every rule. We will modify the
+\textit{logistic regression} algorithm for this purpose in
+Section\ \ref{sec:klr}.
+
+\begin{definition}[Likelihood Estimate]
+  A real value $l_X(\gamma)\in[0,1]$ assigned to a rule
+  $X\rightarrow\gamma$. $l_R > \frac{1}{2}$ indicates that we believe the rule
+  does exist in the grammar, and $l_R < \frac{1}{2}$ suggests the opposite.
+
+  Given a grammar $G=(N,\Sigma,\mathcal{R},S)$ and a likelihood estimate
+  $l_X(\gamma)$ for each $X\rightarrow\gamma\in\mathcal{R}$, we may construct an
+  SCFG $G_S=(N,\Sigma,\mathcal{R},S,p)$:
+  \begin{align*}
+    \text{Let } Z_X & =
+    \sum_{X\rightarrow\gamma\in\mathcal{R}} l_X(\gamma) \\
+    p_X(\gamma) & = \frac{l_X(\gamma)}{Z_X}
+  \end{align*}
+  Simply by scaling our likelihoods appropriately.
+\end{definition}
+
+\begin{definition}[Confidence]
+  A metric of how certain we are about a particular rule, $R$, given by $c_R =
+  \abs{2l_R - 1}$. $c_R = 1$ indicates we are completely certain, and $c_R = 0$
+  suggests we are undecided.
+\end{definition}
+
+Much of the work required to employ these changes is concentrated within the
+learning routine where we maintain the likelihood values, not in the
+oracle. However, we will make one important change to the interface between the
+two: $\textsc{Counter}^*$ will take an SCFG instead of a CFG. The motivation for
+this is that it allows us to use likelihoods when sampling the language. If a
+rule is particularly unlikely, we will use it proportionally less often, and
+thus get a more representative sample of the language.
+
+Whilst before it was most convenient for us to enumerate $\Sigma^*$ and sample
+from that, the addition of likelihood information makes enumeration of parse
+trees the better option. Our new sampling technique will involve traversing the
+derivation graph of the grammar (Definition\ \ref{def:deriv-graph}). But, rather
+than by breadth-first search, we will traverse one path at a time from $v_S$ to
+$v_w$ for some $w\in\Sigma^*$, using the probability distribution to pick which
+derivation step to follow next (Figure\ \ref{list:scfg-sample}). Notice we are
+picking each sample string independently, so we now admit repeated strings into
+our sample, as there is no way to avoid this in a way that guarantees the
+sampling routine will terminate.
+
+\begin{figure}[htbp]
+  \caption{Sampling from an SCFG.}\label{list:scfg-sample}
+  \input{aux/scfg_sample.tex}
+\end{figure}
+
+Dealing in SCFGs also means that we now require the oracle to explicitly label
+whether a counter-example it returns is a false-positive, or a false-negative:
+It may be the case that a string is a false-negative because the probability of
+its most likely parse is too low, but it may still be recognised by the
+underlying CFG.
 
 ## Strong Consistency
 
-words
+As well as admitting duplicate strings, the sampling routine we have suggested
+in Figure\ \ref{list:scfg-sample} also does not favour short strings. In fact,
+certain grammars (those in which rules that introduce non-terminals have high
+probability) will cause it to diverge, and become stuck following an infinite
+length derivation.
+
+\cite{Gecse2010490} offers a solution to this problem in their algorithm which,
+given any SCFG, returns a grammar with the same language, but that is strongly
+consistent.
+
+\begin{definition}[Strongly Consistent]
+  An SCFG is strongly consistent when its expected string length is finite. In
+  other words, sampling a strongly consistent grammar, as in
+  Figure\ \ref{list:scfg-sample}, is guaranteed to terminate.
+\end{definition}
+
+The grammar is made strongly consistent using gradient descent. First, we check
+whether it is strongly consistent already, if not, we pick the \textit{best
+  rules} --- Rules that will reduce the expected word length when favoured ---
+and increase their probability by a fixed scale factor, and repeat
+(Figure\ \ref{list:sc*}).
+
+\begin{figure}[htbp]
+  \caption{Making a grammar strongly consistent}\label{list:sc*}
+  \input{aux/make_strongly_consistent_star.tex}
+\end{figure}
 
 ### \textsc{BestRules}
 
-words
+The best rules to promote when trying to reduce the expected word length are the
+ones with the lowest \textit{hop count}. We must pick at least one such rule for
+each non-terminal.
 
-## Online Kernel Logistic Regression
+\begin{definition}[Hop count]
+  Given a rule $X\rightarrow\alpha$, its hop count is the length of the shortest
+  derivation $\alpha\Rightarrow^*w\in\Sigma$.
+\end{definition}
+
+We find these rules by calculating the hop counts for each
+\textit{non-terminal}. From these we can calculate the hop counts of every rule
+as the sum of the hop counts of the non-terminals they mention plus one. Then we
+may pick the rules with the lowest hop count for each non-terminal.
+
+There is an algorithm for this in \cite{Gecse2010490}, however, here I suggest
+an improvement based on a generalisation of Dijkstra's algorithm
+(Algorithm\ \ref{algo:hop-counts}).
+
+\begin{algorithm}[htbp]
+  \caption{Finding the hop counts for non-terminals. A faithful translation of
+    this algorithm into \textit{Clojure} may be found in
+    Section\ \ref{app:best-rules}, along with an implementation of
+    \textsc{BestRules}.}\label{algo:hop-counts}
+  \begin{algorithmic}
+    \Function{HopCounts}{$G=(N,\Sigma,\mathcal{R},S)$}
+      \LineComment $C$, the mapping from non-terminals to finalised hop counts.
+      \State $C \gets \varnothing$
+      \State
+      \LineComment $Q$, the priority queue of non-terminals ordered by
+        prospective hop counts.
+      \State $Q \gets \varnothing$
+      \State
+      \LineComment Removing self-looping rules (these can never be the best
+        rule).
+      \State $\mathcal{R} \gets \mathcal{R}\setminus
+             \{X\rightarrow\alpha X\beta
+             : X\in N, \alpha,\beta\in(\Sigma\cup N)^*\}$
+      \State
+      \LineComment $V$, the mapping from rules to \#unfinalised non-terminals in
+        the rule.
+      \State $V \gets \{R\mapsto \abs{\{Y_i\}_i}
+             : (X\rightarrow u_0Y_0\ldots u_kY_ku_{k+1}) = R\in \mathcal{R}\}$
+      \State
+      \ForAll{$X\in N$}
+        \If{$X\rightarrow w\in\mathcal{R},w\in\Sigma^*$}
+          \State \Call{Insert}{$Q$, $X$, $0$}
+        \Else
+          \State \Call{Insert}{$Q$, $X$, $\infty$}
+        \EndIf
+      \EndFor
+      \State
+      \While{$\lnot\Call{Empty}{Q}$}
+        \State $(X,h) \gets \Call{Pop}{Q}$
+        \State \algorithmicif $X\in Dom(C)$ \algorithmicthen \textbf{ continue}
+        \State $C\gets C\oplus\{X\mapsto h\}$
+        \For{$Y\rightarrow\alpha X\beta = R \in \mathcal{R}$}
+          \State $V[R] \gets V[R] - 1$
+          \If{$V[R] = 0$}
+            \State \textbf{let} $c = \sum_{Z\in N\text{ mentioned in }R}C[Z]$
+            \If{$c < Q[Y]$}
+              \State \Call{Insert}{$Q$, $Y$, $c$}
+            \EndIf
+          \EndIf
+        \EndFor
+      \EndWhile
+      \State \Return{$C$}
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+\begin{remark}\label{rem:relax-hop}
+  Observe that, in the running of Algorithm\ \ref{algo:hop-counts}, once all the
+  non-terminals mentioned in the best rule of some $X\in N$ have been finalised,
+  $X$ will be assigned its true hop count in $Q$, and from then on, will keep
+  that value.
+\end{remark}
+
+\begin{lemma}\label{lem:hop-count-q-pop}
+  When $X\in N$ is popped from $Q$, its prospective hop count, $h_X$ equals its
+  true hope count, $\overline{h}_X$. Proved by induction.
+
+  \begin{proof}[Base Case, Terminal Rules]
+    Holds trivially.
+  \end{proof}
+
+  \begin{proof}[Inductive Step]
+    Suppose the previous $k$ pops from $Q$ yield true hop counts (I.H.)
+    and we are popping $(X,h_X)$ from $Q$.
+
+    Let $D = X\Rightarrow^*_l w\in\Sigma^*$ be the shortest leftmost derivation
+    of this form from X.
+
+    Observe that if all non-terminals mentioned in $D$ are in $C$ then
+    $h_X=\overline{h}_X$.
+
+    Suppose for a contradiction that this is not the case, and let $Y\notin C$
+    be the first such (working bottom up from terminal rules in $D$), s.t.
+    $(Y,h_Y)\in Q$.
+    \begin{enumerate*}
+      \item[$\implies$] All of the non-terminals in $Y$'s best rule are in $C$
+        \hfill($Y$ is the first such)
+      \item[$\implies$] $h_Y = \overline{h}_Y$
+        \hfill(Remark\ \ref{rem:relax-hop})
+      \item[$\implies$]
+        $\overline{h}_Y = h_Y < \overline{h}_X \leq h_X$
+      \item[$\overset{\text{\textreferencemark}}{\implies}$]
+        $Y$ is before $X$ in $Q$.\hfill(X is the first element in Q)
+      \item[$\implies$] Y cannot exist.\qedhere
+    \end{enumerate*}
+  \end{proof}
+\end{lemma}
+
+\begin{theorem}[Correctness of \textsc{HopCounts}]
+  \textsc{HopCounts} terminates, producing a mapping from non-terminals to their
+  hop counts.
+
+  Invariant: Non-terminals in $C$ are mapped to their true hop count.
+  \begin{proof}[Initialisation]
+    Initially, $C = \varnothing$, so this holds vacuously.
+  \end{proof}
+
+  \begin{proof}[Maintenance]
+    Follows directly from Lemma\ \ref{lem:hop-count-q-pop}.
+  \end{proof}
+
+  \begin{proof}[Termination]
+    Each rule is visited precisely once, when all of the non-terminals it
+    mentions have been finalised, and every non-terminal is added to $C$ at
+    most once.
+
+    \begin{enumerate*}
+    \item[$\implies$] \textsc{HopCounts} is guaranteed to terminate with
+      $Dom(C)=N$.
+    \item[$\implies$] \textsc{HopCounts} returns the required mapping.\qedhere
+    \end{enumerate*}
+  \end{proof}
+\end{theorem}
+
+## Online Kernel Logistic Regression {#sec:klr}
 
 words
 
 ## Loosening the CRF Restriction
 
-words
+words Note: We can do this because we now also get given the sequence of
+terminals to begin with, where before that was derived from counter-examples.
 
 ## Algorithm
 
@@ -1515,6 +1760,14 @@ words
 % perform-reduxns / complete-item
 % reduxn-key / associate-reduxn
 % processed-key
+
+## Reset K-Bounded {#app:reset-k-bounded}
+
+words
+
+## Ancillary Definitions for Strong Consistency {#app:ancillary-sc}
+
+### Best Rules {#app:best-rules}
 
 ## Strongly Connected Components
 
