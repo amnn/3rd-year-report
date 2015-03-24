@@ -1676,10 +1676,6 @@ words
 
 words
 
-## Maximal Ambiguity
-
-words
-
 ## Test Cases
 
 words
