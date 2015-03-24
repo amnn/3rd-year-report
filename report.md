@@ -1663,10 +1663,22 @@ an improvement based on a generalisation of Dijkstra's algorithm
 
 words
 
-## Loosening the CRF Restriction
+## Loosening the CRF Restriction {#sec:loosen}
 
-words Note: We can do this because we now also get given the sequence of
-terminals to begin with, where before that was derived from counter-examples.
+When constructing CRF grammars, often it becomes necessary to introduce a
+non-terminal $X$ just to generate some terminal $x$, because a terminal cannot
+appear in a branch rule. Our algorithm is unaware of this fact, and initially,
+and $X$ is given all possible branch and leaf rules. The algorithm must then
+systematically remove these extra rules.
+
+By loosening the CRF restriction, and allowing branch rules to contain terminal
+symbols, we are in a better situation than we were before: $X$ is no longer
+necessary: we may use $x$ in its place.
+
+This improvement is only available to us now, because this variant of our
+algorithm requires $\Sigma$ as a parameter, in order to generate all possible
+rules ahead of time, whereas the variant without likelihood estimation inferred
+$\Sigma$ from the counter-examples it was given.
 
 ## Algorithm
 
