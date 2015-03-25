@@ -1749,8 +1749,10 @@ a rule is removed, the probabilities of other rules from the same non-terminal
 in the resulting SCFG will increase, yielding the desired effect of promoting
 target rules.
 
-A full implementation of these procedures is available in Section\ \ref{app:klr}
-of the Appendices.
+This approach is a variant of \textit{logistic regression} which has been
+adapted to allow the use of a \textit{kernel}, and work online.  A full
+implementation of these procedures is available in Section\ \ref{app:klr} of the
+Appendices.
 
 ## Loosening the CRF Restriction {#sec:loosen}
 
@@ -1771,7 +1773,55 @@ $\Sigma$ from the counter-examples it was given.
 
 ## Algorithm
 
-words
+\begin{figure}[htbp]
+  \caption{\textsc{Diagnose} for SCFGs.}\label{list:diagnose}
+  \input{aux/scfg_diagnose.tex}
+\end{figure}
+
+Diagnosing every possible parse tree is no longer tractable, as there will be a
+large number of parse trees with very low probabilities to deal with. Removing
+the bad rules from these trees will be almost inconsequential w.r.t the inside
+probability of the counter-example, so we will revert back to diagnosing only
+one parse tree per false-positive: The most likely parse
+(Figure\ \ref{list:diagnose}). This way, we can gain the most from diagnosing
+its bad rule.
+
+\begin{figure}[htbp]
+  \caption{Initialising the rule classifier and the SCFG given to the
+    counter-example routine.}\label{list:classifier-init}
+  \input{aux/scfg_learn_init.tex}
+\end{figure}
+
+When the learning routine acts based on the counter-examples it is given, it
+modifies the coefficients of the classifier, but $\textsc{Counter}^*$ needs an
+SCFG based on the likelihood values. The relationship between the two is
+governed by the kernel function, $K$, which describes the linear combination of
+coefficients that determine each likelihood. In our case, $K$ operates on the
+finite domain $\widetilde{\mathcal{R}}^2$, and can be represented by a matrix,
+the transposition of which gives us the likelihood values that each coefficient
+affects. We expect that this matrix will be sparse: most likelihood values will
+only rely on very few coefficients, so to save time calculating this
+relationship each time a coefficient changes, we will precompute it, and keep
+track of the likelihood values that need changing, whenever a coefficient
+changes (Figure\ \ref{list:classifier-init}). This process also takes advantage
+of the fact that $\sigma(x)$ has an inverse: $\mathbf{logit}(x) =
+\ln\left(\frac{x}{1-x}\right)$. I.e. If a coefficient $\omega_R$ changes to
+$\omega_R^\prime$ and it affects likelihood value $l_S(\alpha)$ with coefficient
+$k$, then:
+
+$$
+l_S(\alpha) \gets \sigma\left(\textbf{logit }l_S(\alpha)
+                + k(\omega_R^\prime - \omega_R)\right)
+\tag{Figure\ \ref{list:classifier-init}, Lines 27--30}
+$$
+
+\begin{figure}[htbp]
+  \caption{\textsc{Learn} adapted to use SCFGs. $\tau$, $\rho$ and $\eta$ become
+    \texttt{prune-p}, \texttt{lr-rate} and \texttt{entropy}
+    respectively. Operations to move between mutable and immutable SCFGs are
+    described in the Appendices.  }\label{list:klr-k-bounded}
+  \input{aux/klr_k_bounded.tex}
+\end{figure}
 
 # Analysis
 
@@ -1844,6 +1894,10 @@ words
 ## Representing SCFGs
 
 words
+<!--
+Mention mutable SCFGs
+And pruning for SCFGs
+-->
 
 ## \textsc{HornSAT} {#app:horn-sat}
 
@@ -1851,12 +1905,14 @@ words
 
 ## Ancillary Definitions for Earley Parser {#app:ancillary-earley}
 
-% reset-state
-% classify
-% shift / perform-shift / enqueue-shift
-% perform-reduxns / complete-item
-% reduxn-key / associate-reduxn
-% processed-key
+<!--
+reset-state
+classify
+shift / perform-shift / enqueue-shift
+perform-reduxns / complete-item
+reduxn-key / associate-reduxn
+processed-key
+-->
 
 ## Reset K-Bounded {#app:reset-k-bounded}
 
