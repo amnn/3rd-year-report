@@ -1853,27 +1853,104 @@ words
 
 # Discussion
 
-words
+Work in incorporating machine learning techniques into the learning of CFLs is
+far from finished. Analysis shows that, whilst errors affect the performance of
+the SCFG algorithm less, the initial outlay is orders of magnitude greater. We
+cannot hope to use this algorithm without modification to learn grammars truly
+interactively. Here, we discuss some ways we can improve this state of affairs,
+and some other avenues worth exploring.
+
+## Ambiguity
+
+Our algorithm only removes rule when it is used in the parse of a false-positive
+string. A consequence of this, is that it favours ambiguous grammars: if
+multiple rules generate good strings, they are all kept. Unfortunately, most
+practical uses of CFGs require them to be unambiguous and disambiguation is
+undecidable in general, but this property offers an interesting benefit: Even if
+we have a grammar in mind for our language, running this algorithm may highlight
+various other rules that we could use to get the same effect. For example, when
+given the non-terminals and language of a right-linear grammar, the returned
+grammar will also contain the rules for the left-linear version.
 
 ## Choosing Non-Terminals {#sec:choosing-nts}
 
-words
+We expect the user to provide the names of all the non-terminals they expect
+their target language to have. This requires a fairly intimate knowledge of the
+language, which may be the very thing they are trying to discern with the
+learning routine and it may be possible to aid the user in this choice, to ease
+the burden.
+
+One possible avenue is to take advantage of the regular binary tree structure of
+parse trees from CRF grammars. Given a corpus of strings known to be in the
+language, we can have the user recursively split the strings in half, to give a
+parse tree. From these parse trees, we would not only get the set of
+non-terminals, but an indication of which rules to favour, which we can seed our
+classifier with, to speed up the learning process.
 
 ## Kernels
 
-words
-
-## Learning SCFGs
-
-words
+In our tests, we only use the identity kernel, which links the coefficient for a
+rule directly to the likelihood for that rule, in a 1-1 correspondance. This is
+guaranteed to work, but will never take advantage of any relationships that may
+exist between rules. It may be possible to improve on this baseline through the
+use of a bespoke kernel (although there is no such guarantee in general).
 
 ## Component Analysis
 
-words
+A technique used in\ \cite{Gecse2010490}, to improve the performance of their
+algorithm, is to split an SCFG $G=(N,\Sigma,\mathcal{R},S,p)$ into sub-grammars
+according to its strongly connected components (SCCs).
+\begin{align*}
+  \text{Let }\llbracket X\rrbracket & \coloneqq \text{SCC containing X}
+  \tag*{$\forall X\in N$}
+  \\ Y\in\llbracket X \rrbracket &
+  \iff X\Rightarrow^*\alpha Y\beta
+  \land Y\Rightarrow^*\gamma X \delta
+  \tag*{$\exists.\alpha,\beta,\gamma,\delta\in(\Sigma\cup N)^*$}
+\end{align*}
+This definition parallels the graph theoretic notion of SCCs as applied to the
+inverted graph representation of CFGs elucidated in Section\ \ref{app:cfg}. It
+is this graph which we use to find the SCCs for the strong consistency
+algorithm, using the procedure found in Section\ \ref{app:scc}.
 
-## Disambiguation
+The advantage in splitting the grammar, when trying to encourage strong
+consistency is that if $X$ and $Y$ are in different SCCs $C_X$ and $C_Y$,
+inducing sub-grammars $G_X$ and $G_Y$ respectively, and there is a rule
+$X\rightarrow\alpha Y\beta\in\mathcal{R}$, then it can be replaced by a new
+rule: $X\rightarrow\alpha\tau\beta\in\mathcal{R}_X$ for a fresh terminal
+$\tau\notin\Sigma$. This signifies that when we make $G_X$ strongly consistent,
+we can assume that the expected length of derivations from $Y$ will be finite,
+because we will be making $G_Y$ strongly consistent, and this can be done
+without ever considering $G_X$.
 
-words
+We have employed a similar technique in Section\ \ref{sec:loosen} by replacing
+non-terminals that produce only one terminal with the terminal itself, but we
+could go further.
+
+Consider the grammars of programming languages which can be split up into
+distinct components that live in their own strongly connected component. For
+example, it is quite common in imperative languages, for statements to contain
+expressions, but not vice versa. In cases such as these, we could lessen the
+load on the algorithm by learning these two structures separately. When learning
+the structure of a statement, we use a terminal symbol to represent where an
+expression may appear, and when we join the structures together, this becomes a
+non-terminal.
+
+The difficulty in implementing this, is that whilst the strong consistency
+algorithm could calculate the SCCs of the grammar it is given, we do not have a
+grammar, and while in certain situations, dependancies of this kind may be part
+of the specification, for other grammars, we can only guess at what the SCCs
+could be. In either case, the job of identifying SCCs lies with the user.
+
+## Learning SCFGs
+
+While we use SCFGs during the learning process, when we are done, we strip the
+probability distribution and return just the CFG. It would be interesting to
+investigate the nature of distributions we would get if we did not.
+
+As it stands the distribution would closely resemble a function of the errors
+made by the oracle, which may be useful in determining which parts of a grammar
+cause the most trouble in the learning process.
 
 # Acknowledgements
 
@@ -1921,7 +1998,7 @@ words
 
 ### Best Rules {#app:best-rules}
 
-## Strongly Connected Components
+## Strongly Connected Components {#app:scc}
 
 words
 
