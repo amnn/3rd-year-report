@@ -1885,11 +1885,10 @@ words
 
 # Appendix A <!-- Subsidiary Listings -->
 
-words
 
 ## Representing CFGs {#app:cfg}
 
-words
+<!-- mention inverted representation, and its uses -->
 
 ## Representing SCFGs
 
