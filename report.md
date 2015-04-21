@@ -66,7 +66,7 @@ will always provide perfect answers, after all, ``to err is human''.
 In this project, I hope to show that these two new considerations are more
 manageable than the restriction they replace, by offering solutions to both.
 Moreover, I explore the cost of relying on user queries: Provided all parts of
-the algorithm are reasonably efficient (polynomial time complexity w.r.t size,
+the algorithm are reasonably efficient (polynomial time complexity w.r.t. size,
 let us say), the rate limiting step becomes the user. I take this into account
 when analysing variants of the algorithm by using a cost model in which the unit
 operation is a query to the user.
@@ -1064,34 +1064,38 @@ The needed specialisation is given in (Figure\ \ref{list:parse-trees}).
 The \textit{Clojure} implementation of Angluin's algorithm will be, for the most
 part, a faithful translation of the pseudo-code found in
 Section\ \ref{sec:k-bounded-algo} although in parts we will modify it to take
-advantage of the simplifications previously discussed.
-
-\begin{figure}[htbp]
-  \caption{\textsc{Learn} implementation.}\label{list:learn}
-  \input{aux/learn.tex}
-  \input{aux/init_g.tex}
-\end{figure}
-
-Firstly, as suggested in Section\ \ref{sec:k-bounded-restrict}, this
-implementation forgoes the $k$ parameter, and always generates CRF
-grammars. And, in order to reduce the number of oracle queries made, we make use
-of \textit{Clojure}'s \texttt{memoize} function to cache responses from
-\texttt{member*} (Figure\ \ref{list:learn},\ Line\ 3).
+advantage of the simplifications previously discussed. We omit the
+implementation of \textsc{Learn} here as it will be covered in detail in later
+sections, where it is modified for use by a human oracle in different ways.
+Instead, in this section, we focus upon the parts of the implementation that
+remain the same across all variants of the algorithm.
 
 \begin{figure}[htbp]
   \caption{\textsc{Candidate} implementation.}\label{list:candidate}
   \input{aux/candidate.tex}
 \end{figure}
 
-Our knowledge that the grammar will be in CRF coupled with our assumption that
-the oracle is perfect, allows us to use the non-terminals provided as a
-parameter, to generate all possible branching rules ahead of time
-(Figure\ \ref{list:learn},\ \texttt{init-grammar}). It follows from our perfect
-oracle assumption that the branching rules needed in the target grammar will
-never be removed, so this saves us the trouble of having to generate them at
-every invocation of the \textsc{Candidate} routine. All that is left for our
-implementation of \textsc{Candidate} (Figure\ \ref{list:candidate}) to do, is to
-fill in the leaf rules for each non-terminal.
+Firstly, as suggested in Section\ \ref{sec:k-bounded-restrict}, this
+implementation forgoes the $k$ parameter, and always generates loosened CRF
+grammars. We affect this change by ensuring that the \textsc{Candidate} routine
+always returns either \textit{leaf} or (loosened)\ \textit{branch} rules
+(Figure\ \ref{list:candidate}).
+
+\begin{figure}[htbp]
+  \caption{Initialisation of the learning algorithm.}\label{list:init-g}
+  \input{aux/init_g.tex}
+\end{figure}
+
+We have also made the decision to initialise our candidate grammar with all
+possible rules (Figure\ \ref{list:init-g}), instead of no rules at all. This
+does not change the behaviour of the algorithm, as given the oracle we will
+develop, Angluin's original algorithm would have spent the first few iterations
+adding the same rules. And, a benefit of this modification is that now, when the
+oracle provides a false-negative counter-example $c_{-}$, we can guarantee that
+it is there because of an error on the oracle's part (because initially, all the
+rules were in the grammar, so if $c_{-}$ cannot be generated, it is because the
+oracle caused the wrong rule to be removed). We will use this fact later when
+improving the algorithm's performance in the face of errors.
 
 \begin{figure}[htbp]
   \caption{\textsc{Diagnose} implementation.}\label{list:diagnose}
@@ -1099,27 +1103,23 @@ fill in the leaf rules for each non-terminal.
 \end{figure}
 
 Another avenue for modification is in ensuring that once the oracle provides a
-counter-example, the grammar is modified in such a way that the oracle can never
-produce that counter-example again. The termination argument
-in\ \cite{angluin1987learning} shows that the original algorithm deals with
-false-negative counter-examples, when the oracle is perfect, but we can improve
-the way false-positives are handled w.r.t minimising future oracle queries:
+counter-example, the grammar is modified in such a way that the oracle will not
+produce that counter-example again, unless a mistake is subsequently made. The
+termination argument in\ \cite{angluin1987learning} shows that the original
+algorithm guarantees such a treatment of false-negative counter-examples, but we
+can improve the way false-positives are handled w.r.t. minimising future oracle
+queries:
 
 When faced with a false-positive counter-example, $c_+$, we do not find just one
 parse tree to diagnose for a bad rule. Instead, we maximise the information that
 can be gained from $c_+$ by finding \textit{all possible} parse trees, and
 diagnosing each one individually, to get a bad rule from each
-(Figure\ \ref{list:learn},\ \texttt{learn},\ Line\ 7;
-Figure\ \ref{list:diagnose}). This technique proves particularly useful as the
-intermediate grammars produced by this learning algorithm tend to be highly
-ambiguous, leading to many possible parses for any one string.
+(Figure\ \ref{list:diagnose}). Parse trees are given to \textsc{Diagnose} in the
+format returned by \texttt{parse-trees} (Figure\ \ref{list:parse-trees}).
 
-We must also prepare for the eventuality that the \textsc{Candidate} routine may
-re-introduce a rule that makes some $c_+$ a viable false-positive again. To
-combat this, we maintain a \texttt{blacklist} of rules that have been removed
-(Figure\ \ref{list:learn},\ \texttt{learn},\ \ Line\ 11), and when the
-\textsc{Candidate} routine is generating new rules, it filters out those already
-in the \texttt{blacklist} (Figure\ \ref{list:candidate},\ Line\ 5).
+This technique proves particularly useful as the intermediate grammars produced
+by this learning algorithm tend to be highly ambiguous, leading to many possible
+parses for any one string.
 
 # A Sampling Oracle
 
@@ -1753,17 +1753,17 @@ Appendices.
 ## Algorithm
 
 \begin{figure}[htbp]
-  \caption{\textsc{Diagnose} for SCFGs.}\label{list:diagnose}
+  \caption{\textsc{Diagnose} for SCFGs.}\label{list:scfg-diagnose}
   \input{aux/scfg_diagnose.tex}
 \end{figure}
 
 Diagnosing every possible parse tree is no longer tractable, as there will be a
 large number of parse trees with very low probabilities to deal with. Removing
-the bad rules from these trees will be almost inconsequential w.r.t the inside
+the bad rules from these trees will be almost inconsequential w.r.t. the inside
 probability of the counter-example, so we will revert back to diagnosing only
 one parse tree per false-positive: The most likely parse
-(Figure\ \ref{list:diagnose}). This way, we can gain the most from diagnosing
-its bad rule.
+(Figure\ \ref{list:scfg-diagnose}). This way, we can gain the most from
+diagnosing its bad rule.
 
 \begin{figure}[htbp]
   \caption{Initialising the rule classifier and the SCFG given to the
