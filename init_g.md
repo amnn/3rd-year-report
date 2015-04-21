@@ -1,7 +1,6 @@
 ``` {.clojure .numberLines}
-(defn- init-grammar
-  [nts]
+(defn init-grammar
+  [nts ts]
   (reduce add-rule (cfg)
-          (for [a nts b nts c nts]
-            [a b c])))
+          (candidates nts ts)))
 ```

@@ -1,19 +1,22 @@
 ``` {.clojure .numberLines}
-(defn- diagnose
+(defn diagnose
   [member* t]
-  (letfn [(consume-child [state [rule & children]]
-            (if-let [bad-child (some (fn [{cnt :nt cy :yield :as child}]
-                                       (when-not (member* cnt cy) child))
-                                     children)]
-              (update-in state [0] conj  bad-child)
-              (update-in state [1] conj! rule)))]
-    (loop [q         (queue t)
-           bad-rules (transient #{})]
-      (if (seq q)
-        (let [{:keys [children]} (peek q)
-              [q* bad-rules*] (reduce consume-child
-                                      [(pop q) bad-rules]
-                                      children)]
-          (recur q* bad-rules*))
-        (persistent! bad-rules)))))
+  (letfn [(consume-child [yield state [rule & children]]
+            (if ((:visited? state) [rule yield])
+              state
+              (let [state (update-in state [:visited?] conj! [rule yield])]
+                (if-let [bad-child
+                         (some (fn [{cnt :nt cy :yield :as child}]
+                                 (when-not (member* cnt cy) child))
+                               (remove terminal-node? children))]
+                  (update-in state [:q] conj bad-child)
+                  (update-in state [:bad-rules] conj! rule)))))]
+    (loop [state {:q         (queue t)
+                  :bad-rules (transient #{})
+                  :visited?  (transient #{})}]
+      (if-let [{:keys [children yield]} (-> state :q peek)]
+        (recur (reduce (partial consume-child yield)
+                       (update-in state [:q] pop)
+                       children))
+        (-> state :bad-rules persistent!)))))
 ```
