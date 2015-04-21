@@ -960,7 +960,7 @@ using unit propagation: an algorithm referred to as \textsc{HornSAT}. The
 implementation of this algorithm is given in Section\ \ref{app:horn-sat} of the
 Appendices, for completeness. A proof of correctness may be found
 in\ \cite[Theorem~(1.8)~pp67--68]{Huth:2004:LCS:975331}, from which the
-minimality and uniqueness of $\mathcal{A}$ follows as a corollary.
+minimality and uniqueness of $\mathcal{A}$ follow as corollaries.
 
 \begin{figure}[htbp]
   \caption{\textit{Contribution}. Almost all of the work is performed by the
@@ -985,8 +985,8 @@ in\ \cite{kasami1965efficient} for this task. It is most popularly depicted as a
 dynamic programming algorithm for testing whether a grammar
 $G=(N,\Sigma,\mathcal{R},S)$ generates a string $w\in\Sigma^*$ in
 $\Theta({\lvert{}w\rvert}^3\lvert G\rvert)$ time, where $G$ is in Chomsky
-\textit{normal} form. We instead present a variant for CRF grammars (The only
-modifications are those omitting cases, so their details have been elided).
+\textit{normal} form. We instead present a variant for loosened CRF grammars, in
+which we treat terminals in branch rules as rules that always yield themselves.
 
 \begin{figure}[htbp]
   \caption{Tabulation scheme for \textsc{CYK}. We take $\llbracket P\rrbracket$
@@ -994,9 +994,13 @@ modifications are those omitting cases, so their details have been elided).
     function for truth values.}\label{fig:cyk-tab}
   \begin{align*}
     \textsc{CYK}[i;j;X] & \coloneqq\llbracket X\Rightarrow^*w_{j,j+i}\rrbracket
-    \tag*{$0 < i\leq\lvert w\rvert, 0\leq j <\lvert w\rvert,X\in N$}
+    \tag*{$0 < i\leq\lvert w\rvert, 0\leq j <\lvert w\rvert,X\in N\cup\Sigma$}
     \\ \textsc{CYK}[1;j;X] & \coloneqq
     {\llbracket X\rightarrow w_j\in\mathcal{R}\rrbracket}^{(1)}
+    \tag*{$X\in N$}
+    \\ \textsc{CYK}[1;j;X] & \coloneqq
+    \llbracket X = w_j \rrbracket
+    \tag*{$X\in\Sigma$}
     \\ \textsc{CYK}[i;j;X] & \coloneqq
     \bigvee_{\substack{0 < k < i,\\X\rightarrow YZ\in\mathcal{R}}}^{(2)}
     \textsc{CYK}[k;j;Y]\wedge^{(3)}\textsc{CYK}[i-k;j+k;Z]
