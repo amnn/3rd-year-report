@@ -8,6 +8,9 @@ LISTINGS = prune.md reach.md contribution.md cyk.md parse_trees.md learn.md \
 
 all: out/report.pdf
 
+clear:
+	rm -rf out/*
+
 out/%.tex: %.md %_template.tex references.bib
 	pandoc  --template=$*_template.tex \
 		--variable monofont=Menlo \
