@@ -667,8 +667,8 @@ $k$-bounded grammar that uses at most $\lvert N \rvert$ non-terminals. In fact,
 if we fix some $N$ there is no guarantee that we can find a grammar recognising
 the language at all, regardless of the value of $k$. Happily however, if
 $L\in\mathcal{L}^{\bar \varepsilon}$, the converse does hold: If we fix the
-value of $k$, we can guarantee that for some set of non-terminals $N$, there is
-a $k$-bounded grammar $G=(N,\Sigma,\mathcal{R},S)$ s.t. $L(G) = L$.
+value of $k > 1$, we can guarantee that for some set of non-terminals $N$, there
+is a $k$-bounded grammar $G=(N,\Sigma,\mathcal{R},S)$ s.t. $L(G) = L$.
 
 \begin{theorem}
   For any $n \in \mathbb{N}$, there is a language, $L$ s.t. for any grammar
@@ -739,22 +739,14 @@ non-trivial and --- to maintain focus --- is out of the scope of this project,
 however we touch on some possibilities in Section\ \ref{sec:choosing-nts} of the
 Discussion.
 
-In fact, we can simplify the \textsc{Candidate} subroutine further than just
-hard-coding $k = 2$: Because we know that rules must either be in
-\textit{branch} or \textit{leaf} form, we will have the \textsc{Candidate}
-routine return only such rules.
-
-If we assume (naïvely) that the oracle always gives perfect answers, we can go
-further still. Such an oracle must necessarily be (a) deterministic, and (b)
-incapable, through its responses, of removing a valid rule from the grammar.
-Observation (a) allows us to cache its responses, knowing that they will not
-change at a later date. Observation (b) states that any rule that is removed in
-the running of the algorithm must not be in the target grammar, and so we can
-avoid re-adding such rules in the \textsc{Candidate} routine. These
-optimisations will yield significant improvements in our cost model, especially
-since Angluin's original \textsc{Candidate} routine cast a wide net in order to
-ensure that at least one rule from the target grammar was introduced: Many of
-these rules would then have to be removed again in subsequent iterations.
+In practise, looking only for CRF grammars actually slows down the progress of
+our algorithm. As a consequence of the fact that terminals cannot appear in
+branch rules in a CRF grammar, often it becomes necessary to introduce a
+non-terminal $X$ just to generate some terminal $x$. Our algorithm is unaware of
+this fact, so initially, $X$ is given all possible branch and leaf rules, which
+must then be systematically removed. By loosening the CRF restriction, and
+allowing branch rules to contain terminal symbols, we avoid this situation and
+the superfluous non-terminals it entails.
 
 Whilst our restriction to CRF grammars has allowed us to make some useful
 simplifications, it seems as though our new algorithm only learns languages in
@@ -1753,23 +1745,6 @@ This approach is a variant of \textit{logistic regression} which has been
 adapted to allow the use of a \textit{kernel}, and work online.  A full
 implementation of these procedures is available in Section\ \ref{app:klr} of the
 Appendices.
-
-## Loosening the CRF Restriction {#sec:loosen}
-
-When constructing CRF grammars, often it becomes necessary to introduce a
-non-terminal $X$ just to generate some terminal $x$, because a terminal cannot
-appear in a branch rule. Our algorithm is unaware of this fact, and initially,
-and $X$ is given all possible branch and leaf rules. The algorithm must then
-systematically remove these extra rules.
-
-By loosening the CRF restriction, and allowing branch rules to contain terminal
-symbols, we are in a better situation than we were before: $X$ is no longer
-necessary: we may use $x$ in its place.
-
-This improvement is only available to us now, because this variant of our
-algorithm requires $\Sigma$ as a parameter, in order to generate all possible
-rules ahead of time, whereas the variant without likelihood estimation inferred
-$\Sigma$ from the counter-examples it was given.
 
 ## Algorithm
 
