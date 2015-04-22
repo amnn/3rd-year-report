@@ -4,13 +4,11 @@ author: Ashok Menon
 abstract: |
   This project aims to produce an interactive learning algorithm for
   context-free languages. To this end, I modify Angluin's \textit{k-bounded
-  learning algorithm} --- an algorithm for learning a subset of context-free
-  grammars, with the use of an oracle. The work is split between designing a
-  model for the oracle that is conducive to interaction and modifying the
-  algorithm itself to take advantage of certain restrictions that we can afford
-  to make. In the end I measure the cost of accounting for errors by comparing
-  two variants of the algorithm: One that assumes a perfect human oracle, and
-  one that is fault-tolerant.
+    learning algorithm} --- an algorithm for learning a subset of context-free
+  grammars, with the use of an oracle. The work is split into three parts:
+  Designing a model for the oracle that is conducive to interaction, modifying
+  the algorithm itself to take advantage of restrictions that we can afford to
+  make, and improving performance when faced with errors.
 ...
 \pagebreak
 
