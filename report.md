@@ -1168,34 +1168,15 @@ terminate and return the wrong grammar. This is a cost we shoulder gladly for
 the weight it takes off the user, especially as we can increase our confidence
 with larger sample sizes.
 
-All that remains is for us to implement a routine to perform the sampling.
+All that remains is for us to implement a routine to perform the sampling. This
+will take some careful thought: Context-free languages being potentially
+infinite, we cannot fall back on sampling uniformly. Indeed it is in our
+interests to favour shorter strings, as those will be easier for the user to
+check.
 
-# Techniques to Reduce Membership Queries {#sec:membership}
+## Enumerating a Context-Free Language {#sec:enumerate}
 
-\begin{figure}[htbp]
-  \caption{An interactive implementation of
-    $\textsc{Member}^*$.}\label{list:int-member}
-  \input{aux/interactive_member.tex}
-\end{figure}
-
-In the case of $\textsc{Member}^*$, it is reasonable (and necessary) to pose the
-query directly to the user (Figure\ \ref{list:int-member}). A user who knows the
-non-terminals that comprise a grammar should also be able to tell, given a
-non-terminal $X$ and a string $w$, whether $X \Rightarrow^* w$ holds in their
-target grammar. Apart from the fact that \texttt{:S} represents the start state
-(by convention), the semantics of other non-terminals is known only to the
-user. It is this semantic information that the answers to non-terminal
-membership queries rely upon, which is why the query must be posed directly.
-
-However, we can aim to minimise the number of membership queries we make, by not
-asking the same question multiple times.
-
-# A Sampling Oracle
-
-Implementing sampling takes some careful thought. Context-free languages being
-potentially infinite, we cannot fall back on sampling uniformly. Indeed, it is
-in our interest to favour shorter strings, as those will be easier for the user
-to check. We will produce a sample of $n$ short strings by enumerating the
+We could produce a sample of $n$ short strings by enumerating the
 language in length order, and picking a string at a rate of 1 in $r$ until we
 have $n$. We use $r$ to change the number of strings we consider:
 \begin{align*}
@@ -1210,8 +1191,6 @@ This form of sampling is already available to us in the form of \textit{stream
   sampling} in the\ \cite{bigml_sampling} sampling library, but we must devise
 an efficient way to enumerate the language of a context-free grammar in length
 order.
-
-## Enumerating a Context-Free Language {#sec:enumerate}
 
 One method we might try is to enumerate parse trees. Enumerating $L(G)$ where
 $G=(N,\Sigma,\mathcal{R},S)$ using this approach is equivalent to traversing the
@@ -1405,116 +1384,66 @@ Figure\ \ref{list:null}.
   \input{aux/null.tex}
 \end{figure}
 
-## Algorithm
+### Algorithm
 
-We put everything together to get our sample-based counter-example routine
-(Figure\ \ref{list:interactive-counter}).
+We put everything together to get our sampling routine
+(Figure\ \ref{list:enum-sampling}).
 
 \begin{figure}[htbp]
-  \caption{Sample based implementation of $\textsc{Counter}^*$.}
-  \label{list:interactive-counter}
-  \input{aux/interactive_counter.tex}
+  \caption{Sampling in length order.}
+  \label{list:enum-sampling}
+  \input{aux/enum_sampling.tex}
 \end{figure}
 
 We have (arbitrarily) chosen to pick elements from the language sequence at a
 rate of $1:n$. Empirically, this seems to provide good results with the expected
-number of strings considered being $n^2$.
+number of strings considered being $n^2$. However, this does result in an
+$\Omega(n^2)$ worst-case expected time complexity w.r.t. only $n$. This is
+particularly a problem with the types of grammars produced by our learning
+routine --- highly ambiguous loosened CRF grammars --- which approach the
+worst-case, making this routine impractical for use with our algorithm.
 
-Also note that we have separated the concern of getting the user's response from
-the main $\textsc{Counter}^*$ routine. This will make interfacing with a test
-harness easier.
+## Sampling from an SCFG
 
-# Compensating for an Imperfect Oracle
-
-Until now, we have been working under the assumption that our oracle is perfect.
-However, we know that this is not the case, and when our human oracle makes a
-mistake, our algorithm, as it stands, is unable to recover: Once a rule required
-by the target grammar is removed, it cannot be added again.
-
-One possible fix is to reset the algorithm when such a situation is detected:
-When given a false negative example from $\textsc{Counter}^*$, we clear our
-remembered responses and rule blacklist. The changes needed for this approach
-are explained in Section\ \ref{app:reset-k-bounded} of the Appendices, and in
-our analysis, we will deal with this variant.
-
-Whilst resetting does mean the algorithm can now recover from an error, it does
-not recover well: For the learning routine to terminate, the oracle must still
-provide enough accurate responses contiguously to fully determine the grammar.
-The probability of this becomes vanishingly low as the grammars get more
-complicated and the oracles become less accurate.
-
-Instead, we will keep track of a likelihood estimate for each rule. Responses to
-queries will guide our choice of estimate: If the oracle suggests that a rule
-should be removed, then we will reduce its likelihood. When the likelihood drops
-below a certain value, we will remove the rule from the grammar, and if as a
-result of such a removal, we are given a false-positive counter-example, we
-reduce our confidence uniformly across every rule. We will modify the
-\textit{logistic regression} algorithm for this purpose in
-Section\ \ref{sec:klr}.
-
-\begin{definition}[Likelihood Estimate]
-  A real value $l_X(\gamma)\in[0,1]$ assigned to a rule
-  $X\rightarrow\gamma$. $l_R > \frac{1}{2}$ indicates that we believe the rule
-  does exist in the grammar, and $l_R < \frac{1}{2}$ suggests the opposite.
-
-  Given a grammar $G=(N,\Sigma,\mathcal{R},S)$ and a likelihood estimate
-  $l_X(\gamma)$ for each $X\rightarrow\gamma\in\mathcal{R}$, we may construct an
-  SCFG $G_S=(N,\Sigma,\mathcal{R},S,p)$:
-  \begin{align*}
-    \text{Let } Z_X & =
-    \sum_{X\rightarrow\gamma\in\mathcal{R}} l_X(\gamma) \\
-    p_X(\gamma) & = \frac{l_X(\gamma)}{Z_X}
-  \end{align*}
-  Simply by scaling our likelihoods appropriately.
-\end{definition}
-
-\begin{definition}[Confidence]
-  A metric of how certain we are about a particular rule, $R$, given by $c_R =
-  \abs{2l_R - 1}$. $c_R = 1$ indicates we are completely certain, and $c_R = 0$
-  suggests we are undecided.
-\end{definition}
-
-Much of the work required to employ these changes is concentrated within the
-learning routine where we maintain the likelihood values, not in the
-oracle. However, we will make one important change to the interface between the
-two: $\textsc{Counter}^*$ will take an SCFG instead of a CFG. The motivation for
-this is that it allows us to use likelihoods when sampling the language. If a
-rule is particularly unlikely, we will use it proportionally less often, and
-thus get a more representative sample of the language.
-
-Whilst before it was most convenient for us to enumerate $\Sigma^*$ and sample
-from that, the addition of likelihood information makes enumeration of parse
-trees the better option. Our new sampling technique will involve traversing the
-derivation graph of the grammar (Definition\ \ref{def:deriv-graph}). But, rather
-than by breadth-first search, we will traverse one path at a time from $v_S$ to
-$v_w$ for some $w\in\Sigma^*$, using the probability distribution to pick which
-derivation step to follow next (Figure\ \ref{list:scfg-sample}). Notice we are
-picking each sample string independently, so we now admit repeated strings into
-our sample, as there is no way to avoid this in a way that guarantees the
-sampling routine will terminate.
+Something else we might try is to sample derivations from an SCFG with the same
+rules as our candidate grammar (Figure\ \ref{list:scfg-sample}). This is
+equivalent to performing a random walk through the derivation graph of the
+grammar (Definition\ \ref{def:deriv-graph}), starting at $v_S$ and terminating
+at some $v_w$ where $w\in\Sigma^*$. This avoids the earlier problem of
+exponential blow-up in the frontier we would have faced when performing a
+breadth-first search of the derivation graph by traversing only one path at a
+time: If we want $n$ samples we simply perform $n$ such walks. The slow-down
+that the previous sampling routine experienced for larger sample sizes is also
+avoided, as the order of growth w.r.t only $n$ is $O(n)$.
 
 \begin{figure}[htbp]
   \caption{Sampling from an SCFG.}\label{list:scfg-sample}
   \input{aux/scfg_sample.tex}
 \end{figure}
 
-Dealing in SCFGs also means that we now require the oracle to explicitly label
-whether a counter-example it returns is a false-positive, or a false-negative:
-It may be the case that a string is a false-negative because the probability of
-its most likely parse is too low, but it may still be recognised by the
-underlying CFG.
-
 ## Strong Consistency
 
-As well as admitting duplicate strings, the sampling routine we have suggested
-in Figure\ \ref{list:scfg-sample} also does not favour short strings. In fact,
-certain grammars (those in which rules that introduce non-terminals have high
-probability) will cause it to diverge, and become stuck following an infinite
-length derivation.
+Then the question becomes, which SCFG? Ideally we would pick one which favours
+short strings. This is important not only to the user, but also in ensuring that
+the sampling routine terminates. In fact, certain grammars (those in which rules
+that introduce non-terminals have high probability) will cause the algorithm to
+diverge and become stuck following an infinite length derivation.
+
+\begin{figure}[htbp]
+  \caption{Sampling a CFG as an SCFG.}\label{list:sc-sample}
+  \input{aux/sc_sample.tex}
+\end{figure}
 
 \cite{Gecse2010490} offers a solution to this problem in their algorithm which,
 given any SCFG, returns a grammar with the same language, but that is strongly
-consistent.
+consistent. To use it, we must transform our candidate grammar
+$G=(N,\Sigma,\mathcal{R},S)$ into an SCFG $G^\prime=(G,p)$, which we may do by
+assigning probabilities uniformly (Figure\ \ref{list:sc-sample}):
+\begin{align*}
+  p_X(\alpha) & = \frac{1}{Z_X}
+  \tag*{$\forall X\rightarrow\alpha\in\mathcal{R}$}
+  \\ Z_X & = \abs{\{X\rightarrow\alpha\in\mathcal{R}\}}
+\end{align*}
 
 \begin{definition}[Strongly Consistent]
   An SCFG is strongly consistent when its expected string length is finite. In
@@ -1554,10 +1483,9 @@ an improvement based on a generalisation of Dijkstra's algorithm
 (Algorithm\ \ref{algo:hop-counts}).
 
 \begin{algorithm}[htbp]
-  \caption{Finding the hop counts for non-terminals. A faithful translation of
-    this algorithm into \textit{Clojure} may be found in
-    Section\ \ref{app:best-rules}, along with an implementation of
-    \textsc{BestRules}.}\label{algo:hop-counts}
+  \caption{Finding the hop counts for non-terminals. See
+    Section\ \ref{app:best-rules} for a translation into \textit{Clojure}, along
+    with an implementation of \textsc{BestRules}.}\label{algo:hop-counts}
   \begin{algorithmic}
     \Function{HopCounts}{$G=(N,\Sigma,\mathcal{R},S)$}
       \LineComment $C$, the mapping from non-terminals to finalised hop counts.
@@ -1673,152 +1601,25 @@ an improvement based on a generalisation of Dijkstra's algorithm
   \end{proof}
 \end{theorem}
 
-## Online Kernel Logistic Regression {#sec:klr}
-
-The rules of the grammar we are learning $G=(N,\Sigma,\mathcal{R},S)$, are
-constructed as
-\begin{align*}
-   \mathcal{R} & =~\{X\rightarrow\alpha\in\widetilde{\mathcal{R}}
-                      : l_X(\alpha) \geq \tau\}
-  \\\text{where } \widetilde{\mathcal{R}} &=~\{X\rightarrow{}a
-  :X\in{}N,a\in\Sigma\}
-  \\ & \cup~\{X\rightarrow{}YZ{}:{}X,Y,Z\in N\}
-\end{align*}
-where $l_{X}(\alpha)$ is the likelihood estimate, and $0\leq\tau<\frac{1}{2}$ is
-a threshold probability s.t. rules with likelihoods lower than $\tau$ can be
-removed.
-
-Likelihood values, in turn, are calculated in terms of
-$\vec{\omega}\in\mathbb{R}^{\abs{\widetilde{\mathcal{R}}}}$ (initially
-$\vec{\omega} = \vec{0}$), and a \textit{kernel} function $K :
-\widetilde{\mathcal{R}}^2 \rightarrow \mathbb{R}$.
-
-\begin{align*}
-  l_X(\alpha) & = \sigma(w_X(\alpha))
-  \\ \text{where } w_X(\alpha) & =
-    \sum_{R\in\widetilde{\mathcal{R}}}
-    \omega_RK(R,X\rightarrow\alpha)
-\end{align*}
+# Techniques to Reduce Membership Queries {#sec:membership}
 
 \begin{figure}[htbp]
-  \caption{The \textit{sigmoid} function.}
-  \centering
-  \begin{tikzpicture}
-    \begin{axis}[
-    	legend pos=north west,
-        axis x line=middle,
-        axis y line=middle,
-        grid = major,
-        width=9cm,
-        height=6cm,
-        grid style={dashed, gray!30},
-        xmin=-10,
-        xmax= 10,
-        ymin= 0,
-        ymax= 1,
-        %axis background/.style={fill=white},
-        xlabel=x,
-        ylabel=y,
-        tick align=outside,
-        enlargelimits=false]
-      % plot the stirling-formulae
-      \addplot[domain=-10:10,black,,samples=500] {1/(1+exp(-x))};
-      \addlegendentry{$\sigma(x)=\frac{1}{1+e^{-x}}$}
-    \end{axis}
-  \end{tikzpicture}
+  \caption{An interactive implementation of
+    $\textsc{Member}^*$.}\label{list:int-member}
+  \input{aux/interactive_member.tex}
 \end{figure}
 
-The kernel function can be used to link the behaviour rules together, for
-example if $K(X\rightarrow\alpha,Y\rightarrow\beta)>0$, then $l_X(\alpha)\propto
-l_Y(\beta)$, and if it is negative, this describes an inversely proportional
-relationship. Unfortunately, these relationships aren't universal: A kernel that
-may speed up the learning of one grammar may slow down, or even prevent, the
-learning of another. We can always rely on the identity kernel to work, however:
+In the case of $\textsc{Member}^*$, it is reasonable (and necessary) to pose the
+query directly to the user (Figure\ \ref{list:int-member}). A user who knows the
+non-terminals that comprise a grammar should also be able to tell, given a
+non-terminal $X$ and a string $w$, whether $X \Rightarrow^* w$ holds in their
+target grammar. Apart from the fact that \texttt{:S} represents the start state
+(by convention), the semantics of other non-terminals is known only to the
+user. It is this semantic information that the answers to non-terminal
+membership queries rely upon, which is why the query must be posed directly.
 
-$$
-  I(R_1,R_2) =
-    \begin{dcases*}
-      1 & when $R_1 = R_2$\\
-      0 & otherwise
-    \end{dcases*}
-$$
-
-From our definitions, we can see how to modify $\vec{\omega}$ in response to
-counter-examples:
-
-\begin{description}
-  \item[False Positive] Diagnose a bad rule, $R = X\rightarrow\alpha$, and
-    update ${\omega_R\gets\omega_R-\rho\cdot l_X(\alpha)}$ for some fixed
-    \textit{learning rate} $0 < \rho$: the more likely we thought $R$ was to be
-    in the language, the more negative we make $\omega_R$, and consequently,
-    $l_X(\alpha) \rightarrow 0$.
-  \item[False Negative] Update ${\vec{\omega}\gets\eta\cdot\vec{\omega}}$, for
-    some fixed \textit{entropy} ${0<\eta<1}$. Thus, for all
-    $X\rightarrow\alpha\in\widetilde{\mathcal{R}}$,
-    $l_X(\alpha)\rightarrow\frac{1}{2}$.
-\end{description}
-
-At no point do we ever \textit{increase} the likelihood of a rule. However, when
-a rule is removed, the probabilities of other rules from the same non-terminal
-in the resulting SCFG will increase, yielding the desired effect of promoting
-target rules.
-
-This approach is a variant of \textit{logistic regression} which has been
-adapted to allow the use of a \textit{kernel}, and work online.  A full
-implementation of these procedures is available in Section\ \ref{app:klr} of the
-Appendices.
-
-## Algorithm
-
-\begin{figure}[htbp]
-  \caption{\textsc{Diagnose} for SCFGs.}\label{list:scfg-diagnose}
-  \input{aux/scfg_diagnose.tex}
-\end{figure}
-
-Diagnosing every possible parse tree is no longer tractable, as there will be a
-large number of parse trees with very low probabilities to deal with. Removing
-the bad rules from these trees will be almost inconsequential w.r.t. the inside
-probability of the counter-example, so we will revert back to diagnosing only
-one parse tree per false-positive: The most likely parse
-(Figure\ \ref{list:scfg-diagnose}). This way, we can gain the most from
-diagnosing its bad rule.
-
-\begin{figure}[htbp]
-  \caption{Initialising the rule classifier and the SCFG given to the
-    counter-example routine.}\label{list:classifier-init}
-  \input{aux/scfg_learn_init.tex}
-\end{figure}
-
-When the learning routine acts based on the counter-examples it is given, it
-modifies the coefficients of the classifier, but $\textsc{Counter}^*$ needs an
-SCFG based on the likelihood values. The relationship between the two is
-governed by the kernel function, $K$, which describes the linear combination of
-coefficients that determine each likelihood. In our case, $K$ operates on the
-finite domain $\widetilde{\mathcal{R}}^2$, and can be represented by a matrix,
-the transposition of which gives us the likelihood values that each coefficient
-affects. We expect that this matrix will be sparse: most likelihood values will
-only rely on very few coefficients, so to save time calculating this
-relationship each time a coefficient changes, we will precompute it, and keep
-track of the likelihood values that need changing, whenever a coefficient
-changes (Figure\ \ref{list:classifier-init}). This process also takes advantage
-of the fact that $\sigma(x)$ has an inverse: $\mathbf{logit}(x) =
-\ln\left(\frac{x}{1-x}\right)$. I.e. If a coefficient $\omega_R$ changes to
-$\omega_R^\prime$ and it affects likelihood value $l_S(\alpha)$ with coefficient
-$k$, then:
-
-$$
-l_S(\alpha) \gets \sigma\left(\textbf{logit }l_S(\alpha)
-                + k(\omega_R^\prime - \omega_R)\right)
-\tag{Figure\ \ref{list:classifier-init}, Lines 27--30}
-$$
-
-\begin{figure}[htbp]
-  \caption{\textsc{Learn} adapted to use SCFGs. $\tau$, $\rho$ and $\eta$ become
-    \texttt{prune-p}, \texttt{lr-rate} and \texttt{entropy}
-    respectively. Operations to move between mutable and immutable SCFGs are
-    described in the Appendices.  }\label{list:klr-k-bounded}
-  \input{aux/klr_k_bounded.tex}
-\end{figure}
+However, we can aim to minimise the number of membership queries we make, by not
+asking the same question multiple times.
 
 # Analysis
 

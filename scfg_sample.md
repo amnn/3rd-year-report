@@ -1,9 +1,6 @@
 ```{.clojure .numberLines}
-(defn- scfg-sample
-  [sg n] (vec (repeatedly n #(sample sg))))
-
-(defn sample
-  ([sg] (sample sg :S))
+(defn scfg-sample
+  ([sg] (scfg-sample sg :S))
 
   ([sg nt]
    (letfn [(pick-rule [nt]
