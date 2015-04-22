@@ -10,7 +10,7 @@
                                first)]
          false-neg
          (sample-tester
-          (stream-sample g n)))))))
+          (sample g n)))))))
 
 (defn present-samples [samples]
   (println "Are these samples correct?")
@@ -21,9 +21,4 @@
   (let [input (read-line)]
     (when (seq input)
       (get samples (dec (read-string input))))))
-
-(defn stream-sample [g n]
-  (-> (lang-seq g)
-      (stream/sample 1 n :rate true)
-      (->> (take n) vec)))
 ```
