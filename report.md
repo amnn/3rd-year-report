@@ -1419,7 +1419,7 @@ avoided, as the order of growth w.r.t only $n$ is $O(n)$.
   \input{aux/scfg_sample.tex}
 \end{figure}
 
-## Strong Consistency
+### Strong Consistency
 
 Then the question becomes, which SCFG? Ideally we would pick one which favours
 short strings. This is important not only to the user, but also in ensuring that
@@ -1712,9 +1712,9 @@ we can assume that the expected length of derivations from $Y$ will be finite,
 because we will be making $G_Y$ strongly consistent, and this can be done
 without ever considering $G_X$.
 
-We have employed a similar technique in Section\ \ref{sec:loosen} by replacing
-non-terminals that produce only one terminal with the terminal itself, but we
-could go further.
+We have employed a similar technique in Section\ \ref{sec:k-bounded-restrict} by
+replacing non-terminals that produce only one terminal with the terminal itself,
+but we could go further.
 
 Consider the grammars of programming languages which can be split up into
 distinct components that live in their own strongly connected component. For
