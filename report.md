@@ -1850,12 +1850,13 @@ words
 
 # Discussion
 
-Work in incorporating machine learning techniques into the learning of CFLs is
-far from finished. Analysis shows that, whilst errors affect the performance of
-the SCFG algorithm less, the initial outlay is orders of magnitude greater. We
-cannot hope to use this algorithm without modification to learn grammars truly
-interactively. Here, we discuss some ways we can improve this state of affairs,
-and some other avenues worth exploring.
+Analysis seems to suggest that our changes yield improvement by a constant scale
+factor. This, by definition, does not change the asymptotic complexity, but as
+the number of queries the algorithm needs increases exponentially with the error
+of the oracle, this represents a real practical benefit. For complex grammars,
+and most practical uses, the number of queries is still perhaps too high, but in
+this section we discuss some ways we can improve this state of affairs, and some
+other avenues worth exploring.
 
 ## Ambiguity
 
