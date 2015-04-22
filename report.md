@@ -1894,14 +1894,6 @@ parse tree. From these parse trees, we would not only get the set of
 non-terminals, but an indication of which rules to favour, which we can seed our
 classifier with, to speed up the learning process.
 
-## Kernels
-
-In our tests, we only use the identity kernel, which links the coefficient for a
-rule directly to the likelihood for that rule, in a 1-1 correspondance. This is
-guaranteed to work, but will never take advantage of any relationships that may
-exist between rules. It may be possible to improve on this baseline through the
-use of a bespoke kernel (although there is no such guarantee in general).
-
 ## Component Analysis
 
 A technique used in\ \cite{Gecse2010490}, to improve the performance of their
@@ -1949,16 +1941,6 @@ grammar, and while in certain situations, dependancies of this kind may be part
 of the specification, for other grammars, we can only guess at what the SCCs
 could be. In either case, the job of identifying SCCs lies with the user.
 
-## Learning SCFGs
-
-While we use SCFGs during the learning process, when we are done, we strip the
-probability distribution and return just the CFG. It would be interesting to
-investigate the nature of distributions we would get if we did not.
-
-As it stands the distribution would closely resemble a function of the errors
-made by the oracle, which may be useful in determining which parts of a grammar
-cause the most trouble in the learning process.
-
 # Acknowledgements
 
 words
@@ -1969,17 +1951,18 @@ words
 
 # Appendix A <!-- Subsidiary Listings -->
 
-
 ## Representing CFGs {#app:cfg}
 
-<!-- mention inverted representation, and its uses -->
+<!--
+mention inverted representation,
+and its uses in HornSAT and Best Rules.
+-->
 
 ## Representing SCFGs
 
 words
 <!--
 Mention mutable SCFGs
-And pruning for SCFGs
 -->
 
 ## \textsc{HornSAT} {#app:horn-sat}
@@ -1997,10 +1980,6 @@ reduxn-key / associate-reduxn
 processed-key
 -->
 
-## Reset K-Bounded {#app:reset-k-bounded}
-
-words
-
 ## Ancillary Definitions for Strong Consistency {#app:ancillary-sc}
 
 ### Best Rules {#app:best-rules}
@@ -2008,8 +1987,6 @@ words
 ## Strongly Connected Components {#app:scc}
 
 words
-
-## Online Kernel Logistic Regression Implemented {#app:klr}
 
 # Appendix B <!-- Tests -->
 
