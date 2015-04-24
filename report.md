@@ -1616,8 +1616,25 @@ target grammar. Apart from the fact that \texttt{:S} represents the start state
 user. It is this semantic information that the answers to non-terminal
 membership queries rely upon, which is why the query must be posed directly.
 
-However, we can aim to minimise the number of membership queries we make, by not
-asking the same question multiple times.
+However, we can try to minimise the number of membership queries we make. One
+simple technique is to store the user responses to already made queries
+(Figure\ \ref{list:k-bounded},\ Line 4). Then, if we require the answer again,
+we may simply fetch the saved response, rather than requery the user. The
+immediate problem with this solution presents itself in the face of errors: If
+an error is made, it is saved and perpetuated by the cache.
+
+As mentioned in Section\ \ref{sec:implementation}, by initialising the candidate
+grammar with all possible rules, we can use false-negative counter-examples to
+detect when the oracle has made an error. At this point, we know that at least
+one of the responses in the cache is incorrect, but do not know which one. So to
+guarantee the removal of the bad response, we must completely clear the cache
+(Figure\ \ref{list:k-bounded},\ Line 5).
+
+\begin{figure}[htbp]
+  \caption{$\textsc{Learn}^*$ with memoized Membership
+    queries.}\label{list:k-bounded}
+  \input{aux/learn.tex}
+\end{figure}
 
 # Analysis
 
