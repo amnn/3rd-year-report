@@ -1625,10 +1625,10 @@ an error is made, it is saved and perpetuated by the cache.
 
 As mentioned in Section\ \ref{sec:implementation}, by initialising the candidate
 grammar with all possible rules, we can use false-negative counter-examples to
-detect when the oracle has made an error. At this point, we know that at least
-one of the responses in the cache is incorrect, but do not know which one. So to
-guarantee the removal of the bad response, we must completely clear the cache
-(Figure\ \ref{list:k-bounded},\ Line 5).
+eventually detect when the oracle has made such an error. At this point, we know
+that at least one of the responses in the cache is incorrect, but do not know
+which one. So to guarantee the removal of the bad response, we must completely
+clear the cache (Figure\ \ref{list:k-bounded},\ Line 5).
 
 \begin{figure}[htbp]
   \caption{$\textsc{Learn}^*$ with memoized Membership
