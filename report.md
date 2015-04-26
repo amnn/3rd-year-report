@@ -445,9 +445,9 @@ are not concerned with learning in the limit.
   \begin{subfigure}[t]{0.45\textwidth}
 
     \begin{align*}
-      S &\rightarrow ab \mid S^\prime \\
+      S^{\phantom\prime} &\rightarrow ab \mid S^\prime \\
       S^\prime &\rightarrow Abc \\
-      A &\rightarrow a
+      A^{\phantom\prime} &\rightarrow a
     \end{align*}
   \end{subfigure}
   \begin{subfigure}[t]{0.45\textwidth}
