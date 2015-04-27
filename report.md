@@ -1614,21 +1614,83 @@ non-terminal $X$ and a string $w$, whether $X \Rightarrow^* w$ holds in their
 target grammar. Apart from the fact that \texttt{:S} represents the start state
 (by convention), the semantics of other non-terminals is known only to the
 user. It is this semantic information that the answers to non-terminal
-membership queries rely upon, which is why the query must be posed directly.
+membership queries rely upon.
 
-However, we can try to minimise the number of membership queries we make. One
-simple technique is to store the user responses to already made queries
-(Figure\ \ref{list:k-bounded},\ Line 4). Then, if we require the answer again,
-we may simply fetch the saved response, rather than requery the user. The
-immediate problem with this solution presents itself in the face of errors: If
-an error is made, it is saved and perpetuated by the cache.
+\begin{figure}[tbp]
+  \begin{subfigure}[t]{0.5\textwidth}
+
+    \begin{flalign*}
+      G_1 \coloneqq &
+      \\ S_{\phantom+} &\rightarrow (\ S_{+} \mid S S &
+      \\ S_{+}       &\rightarrow S\ ) \mid\ ) &
+    \end{flalign*}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.5\textwidth}
+
+    \begin{flalign*}
+      G_2 \coloneqq &
+      \\ S &\rightarrow L R &
+      \\ L &\rightarrow (\ S \mid ( &
+      \\ R &\rightarrow\ )\ S \mid\ ) &
+    \end{flalign*}
+  \end{subfigure}
+  \begin{subfigure}[t]{.5\textwidth}
+
+    \begin{flalign*}
+      G_1^\prime \coloneqq &
+      \\ S_{\phantom+} &\rightarrow (\ S_{+} \mid S S \mid () &
+      \\ S_{+} &\rightarrow S\ ) \mid\ ) \mid S S_+ \mid S_+ S \mid\ )\ S &
+    \end{flalign*}
+  \end{subfigure}
+  \begin{subfigure}[t]{.5\textwidth}
+
+    \begin{flalign*}
+      G_2^\prime \coloneqq &
+      \\ S &\rightarrow L R \mid S S \mid (\ R \mid L\ ) \mid () &
+      \\ L &\rightarrow (\ S \mid (\ \mid (\ S \mid S L \mid S\ ( &
+      \\ R &\rightarrow\ )\ S \mid\ ) \mid\ )\ S \mid S R \mid S\ ) &
+    \end{flalign*}
+  \end{subfigure}
+
+  \caption{Loosened CRF Grammars that generate the language
+    $L=\{(),(()),()(),\dotsc\}$ of balanced parentheses. $G_i^\prime$ is derived
+    from $G_i$ by adding as many loosened CRF rules to each non-terminal whilst
+    still maintaining the language generated. This is roughly the transformation
+    a grammar goes through when learnt by our algorithm: If we attempt to learn
+    $G_1$ with a perfect oracle, we will get $G_1^\prime$, and similarly for
+    $G_2$.}\label{cfg:parens}
+\end{figure}
+
+Although we must pose membership queries directly, we can address the number of
+membership queries made by the algorithm. Suppose for instance, we wish to learn
+a grammar recognising the language of balanced parentheses. Let us estimate a
+lowerbound on the number of membership queries required to achieve our (modest)
+goal.
+
+In the case where we are aiming for $G_1^\prime$ (Figure\ \ref{cfg:parens}), we
+will need atleast $31$ membership queries, whereas if we are learning
+$G_2^\prime$, which recognises the same language, we will need atleast $106$
+queries. Neither of these figures are themselves unreasonable, however, to
+attain them, the user must answer perfectly, and the samples from the
+counter-example routine must be optimal (each one highlighting the next rule to
+remove in the fewest number of membership queries). In practise the query counts
+are much higher, even for simple grammars. And together these examples highlight
+the large variation one may find between similar grammars that recognise the
+same language.
+
+One simple technique to reduce the number of queries we pass on to the user is
+to store responses to queries the first time they are asked
+(Figure\ \ref{list:k-bounded},\ Line 4) and then, on subsequent requests, recall
+them, instead of asking the user again. The immediate problem with this solution
+presents itself in the face of errors: If an error is made, it is saved and
+perpetuated by the cache.
 
 As mentioned in Section\ \ref{sec:implementation}, by initialising the candidate
 grammar with all possible rules, we can use false-negative counter-examples to
-eventually detect when the oracle has made such an error. At this point, we know
-that at least one of the responses in the cache is incorrect, but do not know
-which one. So to guarantee the removal of the bad response, we must completely
-clear the cache (Figure\ \ref{list:k-bounded},\ Line 5).
+eventually detect when the oracle has made an error. At this point, we know that
+at least one of the responses in the cache is incorrect, but do not know which
+one. So if we wish to guarantee the removal of the bad response, we must
+completely clear the cache (Figure\ \ref{list:k-bounded},\ Line 5).
 
 \begin{figure}[htbp]
   \caption{$\textsc{Learn}^*$ with memoized Membership
