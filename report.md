@@ -1095,6 +1095,14 @@ rules were in the grammar, so if $c_{-}$ cannot be generated, it is because the
 oracle caused the wrong rule to be removed. We will use this fact later when
 improving the algorithm's performance in the face of errors.
 
+\begin{definition}[Rounds]\label{def:rounds}
+  Continuing from our invariant, we define a \textit{round} of the learning
+  algorithm in terms of the stream of counter-examples returned by the oracle:
+  The algorithm begins a new round whenever a false-negative counter-example,
+  $c_-$ is given. By convention, processing $c_-$ is part of the preceding
+  round, and $c_-$ is witness to some error in its round.
+\end{definition}
+
 \begin{figure}[htbp]
   \caption{\textsc{Diagnose} implementation.}\label{list:diagnose}
   \input{aux/diagnose.tex}
@@ -1102,10 +1110,10 @@ improving the algorithm's performance in the face of errors.
 
 Another avenue for modification is in ensuring that once the oracle provides a
 counter-example, the grammar is modified in such a way that the oracle will not
-produce that counter-example again, unless a mistake is subsequently made. The
-termination argument in\ \cite{angluin1987learning} shows that the original
-algorithm guarantees such a treatment of false-negative counter-examples, but we
-can improve the way false-positives are handled w.r.t. minimising future oracle
+produce that counter-example again in the current round. The termination
+argument in\ \cite{angluin1987learning} shows that the original algorithm
+guarantees such a treatment of false-negative counter-examples, but we can
+improve the way false-positives are handled w.r.t. minimising future oracle
 queries:
 
 When faced with a false-positive counter-example, $c_+$, we do not find just one
