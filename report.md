@@ -1693,7 +1693,7 @@ them, instead of asking the user again. The immediate problem with this solution
 presents itself in the face of errors: If an error is made, it is saved and
 perpetuated by the cache.
 
-As mentioned in Section\ \ref{sec:implementation}, by initialising the candidate
+As mentioned in Definition\ \ref{def:rounds}, by initialising the candidate
 grammar with all possible rules, we can use false-negative counter-examples to
 eventually detect when the oracle has made an error. At this point, we know that
 at least one of the responses in the cache is incorrect, but do not know which
@@ -1704,6 +1704,68 @@ completely clear the cache (Figure\ \ref{list:k-bounded},\ Line 5).
   \caption{$\textsc{Learn}^*$ with memoized Membership
     queries.}\label{list:k-bounded}
   \input{aux/learn.tex}
+\end{figure}
+
+If we make the \textit{weak learning assumption}
+(Definition\ \ref{def:weak-learning}), then when we completely clear the cache,
+more than half of the responses it contains are expected to be correct. But even
+though we are removing more good responses than bad, if we wish to fix errors by
+removing offending rules, then we can do no better.
+
+\begin{definition}[Weak Learning Assumption]\label{def:weak-learning}
+  The user's error $\varepsilon \leq \frac{1}{2} - \gamma$ in answering
+  membership queries, is such that $\gamma>0$. In other words, they perform
+  better than random guessing.
+\end{definition}
+
+In searching for an alternative, AdaBoost \cite{Freund1997119} shows promise.
+AdaBoost is a machine learning meta-algorithm which, given a weak learner,
+boosts their chances of success to yield a better hypothesis. The general idea
+is to conduct multiple learning rounds, and combine the hypotheses received,
+favouring those with low empirical error. In each round, samples are drawn from
+a distribution designed to highlight the mistakes made in the previous
+round. Because these samples are more likely to appear, we gain more information
+about them from the weak learner, to develop a better hypothesis.
+
+There are many parallels between this framework and our setting: Where AdaBoost
+has a weak learner, we have our user, and AdaBoost's distribution is mirrored by
+the distribution induced by our SCFG. We may even highlight certain rules by
+modifying the probabilities of the SCFG. Where the similarities break down is
+that in AdaBoost, the distribution is joint over samples and their labels,
+whereas our algorithm does not know the true labels of each membership query,
+without which we cannot accurately modify the distribution to highlight errors.
+
+In the absence of this information, we can assume the worst: that in every
+learning round, the weak learner does equally badly on all sample points. Then
+the distribution in each round remains uniform, and we combine the results of
+each round equally. This is in fact equivalent to keeping track of all the
+user's responses, and selecting the modal response to a particular query.
+
+We implement this as an alternative to \textit{Clojure's} standard
+\texttt{memoize} function (Figure\ \ref{list:soft-memo}), which we were using
+previously (Figure\ \ref{list:k-bounded}). To use it we must also generalise the
+interface exposed to the learning algorithm so that the memoized function can
+control how it is resetted between rounds (Figure\ \ref{list:soft-k-bounded}).
+
+The question is whether this restricted AdaBoost provides any meaningful
+improvements in our cost model on our previous implementation. We will
+investigate such error bounds in the next section.
+
+\begin{figure}[htbp]
+  \caption{$\textsc{Learn}^*$ implementation using a generalised interface to
+    the memoized function.}\label{list:soft-k-bounded}
+  \input{aux/soft_k_bounded.tex}
+\end{figure}
+
+\begin{figure}[htbp]
+  \caption{Interface for creating and manipulating a memoized function. The
+    cache itself as well as each query it stores has an associated
+    \textit{generation}. When the cache is reset, its generation is
+    incremented. When the memoized function is queried, if the query's
+    generation is less than the cache's, the real function is called once again
+    and the query's generation is brought in line with the cache's, otherwise,
+    the modal response for the query is returned.}\label{list:soft-memo}
+  \input{aux/soft_memo.tex}
 \end{figure}
 
 # Analysis
