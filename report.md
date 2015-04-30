@@ -1701,8 +1701,8 @@ one. So if we wish to guarantee the removal of the bad response, we must
 completely clear the cache (Figure\ \ref{list:k-bounded},\ Line 5).
 
 \begin{figure}[htbp]
-  \caption{$\textsc{Learn}^*$ with memoized Membership
-    queries.}\label{list:k-bounded}
+  \caption{$\textsc{Learn}^*$ with memoized Membership queries. Hereafter
+    referred to as \textit{reset learn}}\label{list:k-bounded}
   \input{aux/learn.tex}
 \end{figure}
 
@@ -1747,14 +1747,10 @@ previously (Figure\ \ref{list:k-bounded}). To use it we must also generalise the
 interface exposed to the learning algorithm so that the memoized function can
 control how it is resetted between rounds (Figure\ \ref{list:soft-k-bounded}).
 
-The question is whether this restricted AdaBoost provides any meaningful
-improvements in our cost model on our previous implementation. We will
-investigate such error bounds in the next section.
-
 \begin{figure}[htbp]
   \caption{$\textsc{Learn}^*$ implementation using a generalised interface to
-    the memoized function.}\label{list:soft-k-bounded}
-  \input{aux/soft_k_bounded.tex}
+    the memoized function. Hereafter referred to as \textit{modal
+      learn}}\label{list:soft-k-bounded} \input{aux/soft_k_bounded.tex}
 \end{figure}
 
 \begin{figure}[htbp]
@@ -1767,6 +1763,64 @@ investigate such error bounds in the next section.
     the modal response for the query is returned.}\label{list:soft-memo}
   \input{aux/soft_memo.tex}
 \end{figure}
+
+## Error Bounds
+
+Having implemented these variants of Angluin's algorithm, the question is
+whether they provide any meaningful improvements in our cost model on the
+original. It is clear to see that remembering the last response for each query
+until an error is detected will yield a constant factor improvement over the
+original algorithm, but we do not know whether the restricted AdaBoost provides
+any meaningful improvements.
+
+To justify \textit{modal learn}, we will first show that the expected number of
+membership queries made by \textit{reset learn} grows exponentially with the
+error rate of the owner. To do so, it is sufficient to prove that expected
+number of rounds is bounded below by an exponential in terms of the oracle's
+error:
+
+\begin{lemma}\label{lemma:reset-fail-p}
+  $\mathbb{P}(\text{Round fails}) \geq \varepsilon^{2n}$
+  \begin{proof}
+    \begin{align*}
+      \mathbb{P}(\text{Round fails})
+         & \geq \mathbb{P}(\text{all $n$ mandatory rules are removed})
+      \\ & = \mathbb{P}(\text{rule incorrectly classified})^n
+      \\ & \geq \mathbb{P}(\text{query incorrectly answered})^{2n}
+      \\ & = \varepsilon^{2n} \tag*{\qedhere}
+    \end{align*}
+  \end{proof}
+\end{lemma}
+
+\begin{theorem}[Exponentiality in $\varepsilon$]\label{thm:exp-error}
+  Suppose we are learning a grammar with $n$ mandatory rules containing atleast
+  one non-terminal. i.e. it is an error to remove one of these rules.
+  \begin{align*}
+    \text{Let } \varepsilon & = \frac{1}{2} - \gamma
+    \tag{$0<\gamma\leq\frac{1}{2}$}
+    \\ R & = \text{\#rounds of \textit{reset learn}}
+    \\ \text{Then }\mathbb{E}[R] & \geq \exp\left(\varepsilon^{2n}\right)
+  \end{align*}
+
+  \begin{proof}
+    Observe that each round of the \textit{reset learn} algorithm is independent
+    from the others
+    \begin{enumerate*}
+      \item[$\implies$] $R\sim Geo(p)$
+      \item[$\implies$] $\mathbb{E}[R] = \frac{1}{p}$
+        \begin{flalign*}
+          \text{where } p & = \mathbb{P}(\text{Round is successful}) &&
+          \\              & = 1 - \mathbb{P}(\text{Round fails}) &&
+          \\              & \leq 1 - \varepsilon^{2n} &&
+          \tag{Lemma \ref{lemma:reset-fail-p}}
+          \\              & \leq \exp\left(-\varepsilon^{2n}\right) &&
+          \tag{$1+x\leq e^x$}
+        \end{flalign*}
+      \item[$\implies$] $\mathbb{E}[R] \geq \exp\left(\varepsilon^{2n}\right)$
+        \qedhere
+    \end{enumerate*}
+  \end{proof}
+\end{theorem}
 
 # Analysis
 
