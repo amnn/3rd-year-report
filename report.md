@@ -1780,21 +1780,34 @@ number of rounds is bounded below by an exponential in terms of the oracle's
 error:
 
 \begin{lemma}\label{lemma:reset-fail-p}
-  $\mathbb{P}(\text{Round fails}) \geq \varepsilon^{2n}$
+  Take $n$ to be the number of rules with atleast one non-terminal, in the
+  grammar we are learning, then $\mathbb{P}(\text{Round
+    fails})\geq\varepsilon^{2n}$.
   \begin{proof}
+    Observe that
+    \begin{enumerate}
+      \item Once all the rules in the grammar we are learning have been removed
+        (in error) none of the samples provided to the oracle will be correct,
+        so the round \textit{must} reset.
+      \item A good rule is misclassified if it forms a node in a parse tree that
+        is being diagnosed, and all of its bad children (of which there are at
+        most two) are misdiagnosed.
+    \end{enumerate}
     \begin{align*}
       \mathbb{P}(\text{Round fails})
-         & \geq \mathbb{P}(\text{all $n$ mandatory rules are removed})
+         & \geq \mathbb{P}(\text{all $n$ rules are removed})
+      \tag{Observation 1}
       \\ & = \mathbb{P}(\text{rule incorrectly classified})^n
       \\ & \geq \mathbb{P}(\text{query incorrectly answered})^{2n}
+      \tag{Observation 2}
       \\ & = \varepsilon^{2n} \tag*{\qedhere}
     \end{align*}
   \end{proof}
 \end{lemma}
 
 \begin{theorem}[Exponentiality in $\varepsilon$]\label{thm:exp-error}
-  Suppose we are learning a grammar with $n$ mandatory rules containing atleast
-  one non-terminal. i.e. it is an error to remove one of these rules.
+  Suppose we are learning a grammar with $n$ rules containing atleast
+  one non-terminal.
   \begin{align*}
     \text{Let } \varepsilon & = \frac{1}{2} - \gamma
     \tag{$0<\gamma\leq\frac{1}{2}$}
