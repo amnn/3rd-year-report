@@ -30,18 +30,23 @@
 
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
+\numberwithin{definition}{section}
 
 \theoremstyle{plain}
 \newtheorem{theorem}{Theorem}
+\numberwithin{theorem}{section}
 
 \theoremstyle{remark}
 \newtheorem{remark}{Remark}
+\numberwithin{theorem}{section}
 
 \theoremstyle{plain}
 \newtheorem{lemma}{Lemma}
+\numberwithin{lemma}{section}
 
 \floatstyle{ruled}
 \restylefloat{figure}
+\numberwithin{figure}{section}
 
 \AtBeginEnvironment{Shaded}{\small}
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}
