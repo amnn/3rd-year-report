@@ -1920,11 +1920,35 @@ get.
 
 # Analysis
 
-words
+To measure the effect of our changes, we will count how many membership and
+counter-example queries are made by both algorithms when learning a variety of
+grammars. The goal is to compare the relative performances of both algorithms on
+the same grammars, as the error rate of the user changes. To avoid noise in our
+data, we will vary only the error in membership queries, $\varepsilon$, i.e. in
+all our tests, counter-example queries will be answered perfectly.
+
+The number of samples the counter-example routine uses is also important: If it
+is low, then the routine will terminate earlier, but the likelihood that the
+returned grammar has the correct language, is also lower. This is equally true
+for both algorithms, so we will not focus on this property. Instead, we will set
+a sufficiently high sample such that the early termination error, $\eta$, is low
+enough to be effectively ignored. For fairness both algorithms use the same
+sample size, $n$, when learning the same language, and this will be stated in
+the analysis.
+
+Values for $\varepsilon$ will be taken from $\langle
+0.01,0.02,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4\rangle$. Although in some cases,
+performance of the algorithms will deteriorate too quickly to make testing all
+values feasible. In such cases, the upperbound will be stated clearly with the
+analysis.
 
 ## Test Cases
 
-words
+Testing is automated with a harness that, given a target grammar, will answer
+membership and counter-example queries with appropriate error rates, whilst
+keeping track of how many of each query it has been asked. Each plot in the
+graphs to follow represents the arithmetic mean of 10 separate runs of the
+algorithm.
 
 ### ${(ab)}^+$
 
