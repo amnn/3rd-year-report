@@ -1624,6 +1624,8 @@ target grammar. Apart from the fact that \texttt{:S} represents the start state
 user. It is this semantic information that the answers to non-terminal
 membership queries rely upon.
 
+## Memoization
+
 \begin{figure}[tbp]
   \begin{subfigure}[t]{0.5\textwidth}
 
@@ -1702,9 +1704,11 @@ completely clear the cache (Figure\ \ref{list:k-bounded},\ Line 5).
 
 \begin{figure}[htbp]
   \caption{$\textsc{Learn}^*$ with memoized Membership queries. Hereafter
-    referred to as \textit{reset learn}}\label{list:k-bounded}
+    referred to as \textit{reset learn}.}\label{list:k-bounded}
   \input{aux/learn.tex}
 \end{figure}
+
+## Modal Learning
 
 If we make the \textit{weak learning assumption}
 (Definition\ \ref{def:weak-learning}), then when we completely clear the cache,
@@ -1750,7 +1754,7 @@ control how it is resetted between rounds (Figure\ \ref{list:soft-k-bounded}).
 \begin{figure}[htbp]
   \caption{$\textsc{Learn}^*$ implementation using a generalised interface to
     the memoized function. Hereafter referred to as \textit{modal
-      learn}}\label{list:soft-k-bounded} \input{aux/soft_k_bounded.tex}
+      learn}.}\label{list:soft-k-bounded} \input{aux/soft_k_bounded.tex}
 \end{figure}
 
 \begin{figure}[htbp]
