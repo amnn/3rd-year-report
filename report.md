@@ -1775,23 +1775,40 @@ any meaningful improvements.
 
 To justify \textit{modal learn}, we will first show that the expected number of
 membership queries made by \textit{reset learn} grows exponentially with the
-error rate of the owner. To do so, it is sufficient to prove that expected
-number of rounds is bounded below by an exponential in terms of the oracle's
-error:
+error rate of the owner, and then try to guage the improvement on this that
+\textit{modal learn} provides.
+
+\begin{align*}
+  \text{Let } n & = \text{\#possible rules in target grammar with atleast one
+    non-terminal}
+  \\ \varepsilon & = \frac{1}{2} - \gamma
+  \tag{user error; $0<\gamma\leq\frac{1}{2}$}
+  \\ \eta & \geq \mathbb{P}(\text{candidate sample erroneously consistent with
+    target})
+  \\ R_{\phantom i} & = \text{\#rounds of \textit{reset learn}}
+  \\ Q_i & = \text{\#membership queries in round $i$}
+  \\ Q_{\phantom i} & = Q_1 + Q_2 + \dots + Q_R
+  \intertext{Assume we are learning a non-trivial language $L$
+    s.t. $\varnothing\subset L\subset\Sigma^*$ and $n>0$}
+\end{align*}
 
 \begin{lemma}\label{lemma:reset-fail-p}
-  Take $n$ to be the number of rules with atleast one non-terminal, in the
-  grammar we are learning, then $\mathbb{P}(\text{Round
-    fails})\geq\varepsilon^{2n}$.
+  $\mathbb{P}(\text{Round fails})\geq\varepsilon^{2n}$.
   \begin{proof}
     Observe that
     \begin{enumerate}
-      \item Once all the rules in the grammar we are learning have been removed
-        (in error) none of the samples provided to the oracle will be correct,
-        so the round \textit{must} reset.
-      \item A good rule is misclassified if it forms a node in a parse tree that
-        is being diagnosed, and all of its bad children (of which there are at
-        most two) are misdiagnosed.
+      \item Once all possible rules in the grammar have been removed (some in
+        error) none of the samples provided to the oracle will be correct,
+        because the language is non-trivial, so the round \textit{must} reset.
+      \item A good rule is misclassified if it appears in the node of a parse
+        tree being diagnosed s.t. when we are processing that node:
+        \begin{enumerate}
+          \item The sub-tree rooted at this node is good, but the user labels it
+            as bad.
+          \item The sub-tree rooted at this node is bad (i.e. there must be a
+            bad child) and an error is made in answering the query for a bad
+            child (of which there are at most two).
+        \end{enumerate}
     \end{enumerate}
     \begin{align*}
       \mathbb{P}(\text{Round fails})
@@ -1806,18 +1823,11 @@ error:
 \end{lemma}
 
 \begin{theorem}[Exponentiality in $\varepsilon$]\label{thm:exp-error}
-  Suppose we are learning a grammar with $n$ rules containing atleast
-  one non-terminal.
-  \begin{align*}
-    \text{Let } \varepsilon & = \frac{1}{2} - \gamma
-    \tag{$0<\gamma\leq\frac{1}{2}$}
-    \\ R & = \text{\#rounds of \textit{reset learn}}
-    \\ \text{Then }\mathbb{E}[R] & \geq \exp\left(\varepsilon^{2n}\right)
-  \end{align*}
+  $\mathbb{E}[Q]\geq(1-\eta)\exp\left(\varepsilon^{2n}\right)$.
 
   \begin{proof}
     Observe that each round of the \textit{reset learn} algorithm is independent
-    from the others
+    from the others.
     \begin{enumerate*}
       \item[$\implies$] $R\sim Geo(p)$
       \item[$\implies$] $\mathbb{E}[R] = \frac{1}{p}$
@@ -1830,10 +1840,69 @@ error:
           \tag{$1+x\leq e^x$}
         \end{flalign*}
       \item[$\implies$] $\mathbb{E}[R] \geq \exp\left(\varepsilon^{2n}\right)$
-        \qedhere
+      \item[$\implies$]
+        \begin{flalign*}
+          \mathbb{E}[Q] & = \mathbb{E}[Q_1 + Q_2 + \dots + Q_R] &&
+          \\ & = \mathbb{E}[R]\mathbb{E}[Q_1] &&
+          \\ & \geq (1-\eta)\mathbb{E}[R] &&
+          \tag{$\mathbb{P}(Q_i = 0) \leq \eta$}
+          \\ & \geq (1-\eta)\exp\left(\varepsilon^{2n}\right) \tag*{\qedhere} &&
+        \end{flalign*}
     \end{enumerate*}
   \end{proof}
 \end{theorem}
+
+Bounding \textit{modal learn} from above is more difficult, because the
+probability of a given round succeeding increases for later rounds, based on the
+distribution induced by candidate grammars. Instead, we get an idea of the
+improvement we may see by bounding the error for a particular membership query
+after it has already been answered $k$ times.
+
+\begin{theorem}[Hoeffding's inequality]\label{thm:hoeffdings}
+  Let $\mathds{1}_i\sim I(p)$ be some independent Bernoulli trials with success
+  probability $p$, and let
+  $X=\frac{1}{n}(\mathds{1}_1+\mathds{1}_2+\dots+\mathds{1}_n)$
+  s.t. $\mathbb{E}[X] = p$, then $\mathbb{P}(X<\mathbb{E}[X]-\gamma)\leq
+  e^{-2n\gamma^2}$.
+\end{theorem}
+
+\begin{theorem}[Bound on Query Error]
+  Suppose $q$ is a query that the user has responded to $k$ times, and
+  $\overline{A}$ is the event that the next answer to $q$ is incorrect,
+  then $\mathbb{P}(\overline{A}) \leq e^{-2k\gamma^2}$.
+  \begin{proof}
+    \begin{align*}
+      \intertext{Let}
+      C & = \text{\#correct responses for }q
+      & \mathbb{E}[C] & = k\varepsilon = k(\tfrac{1}{2}+\gamma)
+      \\ X & = \tfrac{1}{k}C
+      & \mathbb{E}[X] & = \tfrac{1}{2}+\gamma
+    \end{align*}
+    \begin{align*}
+      \intertext{Then}
+      \mathbb{P}(\overline{A}) & = \mathbb{P}(C<\tfrac{1}{2}k)
+      \\ & = \mathbb{P}(X<\tfrac{1}{2})
+      \\ & = Pr(X<\mathbb{E}[X]-\gamma)
+      \\ & \leq e^{-2k\gamma^2}
+      \tag*{(Theorem \ref{thm:hoeffdings}; Hoeffding's inequality) \qedhere}
+    \end{align*}
+  \end{proof}
+\end{theorem}
+
+We see that as the rounds progress, and we gain more information for each
+membership query, it becomes exponentially less likely that we will make an
+error the next time the query is posed. And, it follows directly that
+\textit{modal learn} performs no worse than \textit{reset learn}: In the first
+round a query is posed, its error is $\varepsilon$, and subsequently it only
+remains the same (in rounds it does not appear) or improves (in rounds it does
+appear in). Furthermore, queries that are likely to appear often are
+comparatively more accurately answered.
+
+It is difficult to translate this into a meaningful upperbound on
+$\mathbb{E}[Q]$ because it relies on how often queries appear, which in turn
+relies on the grammar being learnt. But knowing that we can do no worse than
+before, we turn to empirical methods to gauge how much of an improvement we do
+get.
 
 # Analysis
 
