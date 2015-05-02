@@ -1822,6 +1822,20 @@ error rate of the owner, and then try to guage the improvement on this that
   \end{proof}
 \end{lemma}
 
+\begin{lemma}\label{lemma:bound-expect-q}
+  $\mathbb{E}[Q_i] \geq 1 - \eta$
+  \begin{proof}
+    \begin{align*}
+      \mathbb{E}[Q_i] & = \sum_{j=0}^{\infty}{j\mathbb{P}(Q_i = j)}
+      \\ & = \sum_{j=1}^{\infty}{j\mathbb{P}(Q_i = j)}
+      \\ & \geq \sum_{j=1}^{\infty}{\mathbb{P}(Q_i = j)}
+      \\ & = \mathbb{P}(Q_i>0)
+      \\ & \geq 1 - \eta
+      \tag*{($\mathbb{P}(Q_i = 0)\leq\eta$) \qedhere}
+    \end{align*}
+  \end{proof}
+\end{lemma}
+
 \begin{theorem}[Exponentiality in $\varepsilon$]\label{thm:exp-error}
   $\mathbb{E}[Q]\geq(1-\eta)\exp\left(\varepsilon^{2n}\right)$.
 
@@ -1845,7 +1859,7 @@ error rate of the owner, and then try to guage the improvement on this that
           \mathbb{E}[Q] & = \mathbb{E}[Q_1 + Q_2 + \dots + Q_R] &&
           \\ & = \mathbb{E}[R]\mathbb{E}[Q_1] &&
           \\ & \geq (1-\eta)\mathbb{E}[R] &&
-          \tag{$\mathbb{P}(Q_i = 0) \leq \eta$}
+          \tag{Lemma \ref{lemma:bound-expect-q}}
           \\ & \geq (1-\eta)\exp\left(\varepsilon^{2n}\right) \tag*{\qedhere} &&
         \end{flalign*}
     \end{enumerate*}
