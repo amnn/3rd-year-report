@@ -1779,7 +1779,7 @@ any meaningful improvements.
 
 To justify \textit{modal learn}, we will first show that the expected number of
 membership queries made by \textit{reset learn} grows exponentially with the
-error rate of the owner, and then try to guage the improvement on this that
+error rate of the owner, and then try to gauge the improvement on this that
 \textit{modal learn} provides.
 
 \begin{align*}
@@ -1919,8 +1919,8 @@ comparatively more accurately answered.
 It is difficult to translate this into a meaningful upperbound on
 $\mathbb{E}[Q]$ because it relies on how often queries appear, which in turn
 relies on the grammar being learnt. But knowing that we can do no worse than
-before, we turn to empirical methods to gauge how much of an improvement we do
-get.
+before, we turn to empirical methods to determine how much of an improvement we
+do get.
 
 # Analysis
 
