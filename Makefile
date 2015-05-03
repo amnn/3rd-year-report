@@ -7,6 +7,8 @@ LISTINGS = prune.md reach.md contribution.md cyk.md parse_trees.md learn.md \
 		soft_k_bounded.md soft_memo.md harness.md ancillary_harness.md \
 		harness_specialise.md
 
+DIAGRAMS = parens1.png parens2.png ab_plus.png anbn.png addition.png maths.png
+
 all: out/report.pdf
 
 clear:
@@ -28,7 +30,7 @@ aux/%.tex: %.md
 	       -f markdown -t latex \
 	       $< -o $@
 
-out/report.tex : $(LISTINGS:%.md=aux/%.tex)
+out/report.tex : $(LISTINGS:%.md=aux/%.tex) $(DIAGRAMS)
 
 count: out/report.tex
 	texcount -sum=1,0,0,0,0,0,0 -col out/report.tex

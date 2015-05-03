@@ -1968,21 +1968,49 @@ of 10 separate runs of the algorithm.
 
 ### ${(ab)}^+$
 
+\vbox{\centering
+  \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{ab_plus}
+}
+
 words
 
 ### $a^{n}b^{n}$
+
+\vbox{\centering
+  \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{anbn}
+}
 
 words
 
 ### $a^{n}b^{m}c^{n+m}$
 
+\vbox{\centering
+  \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{addition}
+}
+
 words
 
-### Balanced Parantheses
+### Balanced Parentheses 1
+
+\vbox{\centering
+  \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{parens1}
+}
+
+words
+
+### Balanced Parentheses 2
+
+\vbox{\centering
+  \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{parens2}
+}
 
 words
 
 ### Mathematical Expressions
+
+\vbox{\centering
+  \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{maths}
+}
 
 words
 

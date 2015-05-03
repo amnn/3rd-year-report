@@ -21,9 +21,6 @@
 \usepackage{float}
 \usepackage{subcaption}
 
-\usepackage{pgfplots}
-\usepackage{tikz}
-
 % Custom Commands
 \algnewcommand{\LineComment}[1]{\State \(\triangleright\) #1}
 \newcommand{\eqdef}{\overset{\mathrm{def}}{=\joinrel=}}
@@ -50,6 +47,9 @@
 
 \AtBeginEnvironment{Shaded}{\small}
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}
+
+\usepackage{graphicx}
+\DeclareGraphicsExtensions{.png,.pdf}
 
 % TeXCount directives
 
@@ -133,7 +133,6 @@ $if(tables)$
 \usepackage{longtable,booktabs}
 $endif$
 $if(graphics)$
-\usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
