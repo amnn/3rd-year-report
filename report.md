@@ -2078,6 +2078,10 @@ words
 
 \bibliography{references}
 
+\vbox{
+  %TC:ignore
+}
+
 # Appendix A <!-- Subsidiary Listings -->
 
 ## Representing CFGs {#app:cfg}
@@ -2124,3 +2128,7 @@ words
 # Appendix B <!-- Tests -->
 
 test
+
+\vbox{
+  %TC:endignore
+}
