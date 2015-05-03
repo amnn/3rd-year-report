@@ -955,8 +955,8 @@ $\phi$ is in fact a Horn formula (a formula in conjunctive normal form in which
 each conjunct contains at most one positive literal). As a result, it is
 possible for us to find such a (unique) minimal $\mathcal{A}$, in linear time
 using unit propagation: an algorithm referred to as \textsc{HornSAT}. The
-implementation of this algorithm is given in Section\ \ref{app:horn-sat} of the
-Appendices, for completeness. A proof of correctness may be found
+implementation of this algorithm is given in Appendix\ \ref{app:horn-sat}, for
+completeness. A proof of correctness may be found
 in\ \cite[Theorem~(1.8)~pp67--68]{Huth:2004:LCS:975331}, from which the
 minimality and uniqueness of $\mathcal{A}$ follow as corollaries.
 
@@ -969,7 +969,7 @@ minimality and uniqueness of $\mathcal{A}$ follow as corollaries.
     As in the reachability algorithm (Figure~\ref{list:reach}), for the sake of
     efficiency, we do not explicitly create the propositional formula we are
     reducing to, but instead produce a graph representation of the grammar,
-    elaborated in detail in Section~\ref{app:cfg} of the Appendices.}
+    elaborated in detail in Appendix~\ref{app:cfg}.}
 
   \input{aux/contribution.tex}
 \end{figure}
@@ -1490,7 +1490,7 @@ an improvement based on a generalisation of Dijkstra's algorithm
 
 \begin{algorithm}[htbp]
   \caption{Finding the hop counts for non-terminals. See
-    Section\ \ref{app:best-rules} for a translation into \textit{Clojure}, along
+    Appendix\ \ref{app:best-rules} for a translation into \textit{Clojure}, along
     with an implementation of \textsc{BestRules}.}\label{algo:hop-counts}
   \begin{algorithmic}
     \Function{HopCounts}{$G=(N,\Sigma,\mathcal{R},S)$}
@@ -1948,11 +1948,23 @@ analysis.
 
 ## Test Cases
 
-Testing is automated with a harness that, given a target grammar, will answer
-membership and counter-example queries with appropriate error rates, whilst
-keeping track of how many of each query it has been asked. Each plot in the
-graphs to follow represents the arithmetic mean of 10 separate runs of the
-algorithm.
+Testing is automated with a harness (Figure\ \ref{list:harness-specialise})
+that, given a target grammar, will answer membership and counter-example queries
+with appropriate error rates, whilst keeping track of how many of each query it
+has been asked. Each plot in the graphs to follow represents the arithmetic mean
+of 10 separate runs of the algorithm.
+
+\begin{figure}[htbp]
+  \caption{Specialisations of the test harness (Figure~\ref{list:harness}) for
+    the two variants of our algorithm.}\label{list:harness-specialise}
+  \input{aux/harness_specialise.tex}
+\end{figure}
+
+\begin{figure}[htbp]
+  \caption{Implementation of Test Harness. Ancillary definitions
+    can be found in Appendix~\ref{app:ancillary-harness}.}\label{list:harness}
+  \input{aux/harness.tex}
+\end{figure}
 
 ### ${(ab)}^+$
 
@@ -2025,9 +2037,9 @@ according to its strongly connected components (SCCs).
   \tag*{$\exists.\alpha,\beta,\gamma,\delta\in(\Sigma\cup N)^*$}
 \end{align*}
 This definition parallels the graph theoretic notion of SCCs as applied to the
-inverted graph representation of CFGs elucidated in Section\ \ref{app:cfg}. It
+inverted graph representation of CFGs elucidated in Appendix\ \ref{app:cfg}. It
 is this graph which we use to find the SCCs for the strong consistency
-algorithm, using the procedure found in Section\ \ref{app:scc}.
+algorithm, using the procedure found in Appendix\ \ref{app:scc}.
 
 The advantage in splitting the grammar, when trying to encourage strong
 consistency is that if $X$ and $Y$ are in different SCCs $C_X$ and $C_Y$,
@@ -2102,6 +2114,10 @@ processed-key
 ### Best Rules {#app:best-rules}
 
 ## Strongly Connected Components {#app:scc}
+
+words
+
+## Ancillary Definitions for Test Harness {#app:ancillary-harness}
 
 words
 
