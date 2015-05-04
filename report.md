@@ -1700,7 +1700,7 @@ grammar with all possible rules, we can use false-negative counter-examples to
 eventually detect when the oracle has made an error. At this point, we know that
 at least one of the responses in the cache is incorrect, but do not know which
 one. So if we wish to guarantee the removal of the bad response, we must
-completely clear the cache (Figure\ \ref{list:k-bounded},\ Line 5).
+completely clear the cache (Figure\ \ref{list:k-bounded},\ Line 11).
 
 \begin{figure}[htbp]
   \caption{$\textsc{Learn}^*$ with memoized Membership queries. Hereafter
