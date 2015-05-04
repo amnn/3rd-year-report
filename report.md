@@ -1971,7 +1971,7 @@ both a log scale (left) and a linear scale (right).
 ### ${(ab)}^+$
 
 \vbox{\centering
-  \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{ab_plus}
+  \includegraphics[width=\textwidth,natwidth=3507,natheight=2834]{ab_plus}
 }
 
 \vbox{
@@ -1998,7 +1998,7 @@ changes in user error.
 ### $a^{n}b^{n}$
 
 \vbox{\centering
-  \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{anbn}
+  \includegraphics[width=\textwidth,natwidth=3507,natheight=2834]{anbn}
 }
 
 \vbox{
@@ -2029,7 +2029,7 @@ and counter-example queries, shown by the apparent congruence in the graphs.
 ### $a^{n}b^{m}c^{n+m}$ {#sec:addition}
 
 \vbox{\centering
-  \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{addition}
+  \includegraphics[width=\textwidth,natwidth=3507,natheight=2834]{addition}
 }
 
 \vbox{
@@ -2060,13 +2060,13 @@ this case, \textit{modal learn} offers a constant factor improvement in the
 \textit{exponent}, seen most clearly in the log graph for counter-examples,
 which shows a shallower gradient in the red line. This represents asymptotically
 more of an improvement than in the $a^nb^n$ test, lending credence to the fact
-that \textit{modal learn}'s upper bound relies heavily on the language being
+that \textit{modal learn}'s performance relies heavily on the language being
 learnt.
 
 ### Balanced Parentheses 1 {#sec:parens1}
 
 \vbox{\centering
-  \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{parens1}
+  \includegraphics[width=\textwidth,natwidth=3507,natheight=2834]{parens1}
 }
 
 \vbox{
@@ -2082,11 +2082,15 @@ learnt.
 
 Balanced Parentheses are another mainstay of context-free language examples. In
 this variant, the target grammar is in CRF form, and so requires some redundant
-non-terminals, which should effect the algorithms' performance.
+non-terminals. On the one hand extra non-terminals mean extra rules need to be
+removed in every round, but in this particular case it also means that some
+rules in the target grammar can be removed (e.g. $L\rightarrow S L$ and
+$R\rightarrow S R$) whilst still generating the correct language, which should
+make this test more resilient to changes in error.
 
 Notice that for $\varepsilon\geq0.2$ the performance of the two algorithms
-diverges, with the blue line steeper from this point than the red. This is a
-clearer indication that \textit{modal learn} is offering a constant factor
+diverges, with the dotted line steeper from this point than the solid line. This
+is a clearer indication that \textit{modal learn} is offering a constant factor
 improvement in the exponent than in Test\ \ref{sec:addition}, where data was
 severely limited.
 
@@ -2097,7 +2101,7 @@ queries.
 ### Balanced Parentheses 2
 
 \vbox{\centering
-  \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{parens2}
+  \includegraphics[width=\textwidth,natwidth=3507,natheight=2834]{parens2}
 }
 
 \vbox{
@@ -2133,7 +2137,7 @@ giving us more cache hits on our stored membership query responses.
 ### Mathematical Expressions
 
 \vbox{\centering
-  \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{maths}
+  \includegraphics[width=\textwidth,natwidth=3507,natheight=2834]{maths}
 }
 
 \vbox{
