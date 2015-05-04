@@ -1768,7 +1768,7 @@ control how it is resetted between rounds (Figure\ \ref{list:soft-k-bounded}).
   \input{aux/soft_memo.tex}
 \end{figure}
 
-## Error Bounds
+## Error Bounds {#sec:err-bounds}
 
 Having implemented these variants of Angluin's algorithm, the question is
 whether they provide any meaningful improvements in our cost model on the
@@ -1916,11 +1916,11 @@ remains the same (in rounds it does not appear) or improves (in rounds it does
 appear in). Furthermore, queries that are likely to appear often are
 comparatively more accurately answered.
 
-It is difficult to translate this into a meaningful upperbound on
-$\mathbb{E}[Q]$ because it relies on how often queries appear, which in turn
-relies on the grammar being learnt. But knowing that we can do no worse than
-before, we turn to empirical methods to determine how much of an improvement we
-do get.
+Beyond showing that performance is no worse, it is difficult to translate this
+into a meaningful upperbound on $\mathbb{E}[Q]$ because it relies on how often
+queries appear, which in turn relies on the grammar being learnt. But knowing
+that we can do no worse than before, we turn to empirical methods to determine
+how much of an improvement we do get.
 
 # Analysis
 
@@ -1952,7 +1952,9 @@ Testing is automated with a harness (Figure\ \ref{list:harness-specialise})
 that, given a target grammar, will answer membership and counter-example queries
 with appropriate error rates, whilst keeping track of how many of each query it
 has been asked. Each plot in the graphs to follow represents the arithmetic mean
-of 10 separate runs of the algorithm.
+of 10 separate runs of the algorithm. For each test case, we plot the number of
+membership queries (top) and the number of counter-example queries (bottom), in
+both a log scale (left) and a linear scale (right).
 
 \begin{figure}[htbp]
   \caption{Specialisations of the test harness (Figure~\ref{list:harness}) for
@@ -1972,7 +1974,19 @@ of 10 separate runs of the algorithm.
   \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{ab_plus}
 }
 
-words
+Sample size $n=30$.
+
+This language was chosen as an example of a trivial regular set, representing
+the language of finite non-empty sequences of $ab$. We did not use $L=a^+$
+because it provides no useful information: The candidate grammar initially posed
+by both algorithms already recognises $L$, so no matter what the error value is,
+the algorithms will terminate immediately.
+
+Differences in the performance of the two algorithms is difficult to discern
+when learning this language. This is mainly due to the numbers being fairly low
+and the variance in the results being relatively high. With a language so
+simple, both algorithms perform well and do not seem to respond adversely to
+changes in user error.
 
 ### $a^{n}b^{n}$
 
@@ -1980,23 +1994,71 @@ words
   \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{anbn}
 }
 
-words
+Sample size $n=30$.
 
-### $a^{n}b^{m}c^{n+m}$
+If $(ab)^+$ represents the trivial regular set, then $a^nb^n$ can be considered
+the trivial context-free set: Strings with a sequence of $a$'s followed by the
+same number of $b$'s.
+
+This case demonstrates the exponential relationship to $\varepsilon$ that we had
+shown should exist in Section\ \ref{sec:err-bounds}. Here we also start to see a
+noticeable improvement in \textit{modal learn} over \textit{reset
+  learn}. Examining the log scale graphs, we see that for $\varepsilon\geq0.25$,
+\textit{modal learn} requires a constant factor fewer queries. This culminates
+in requiring 1935 fewer queries, in expectation, for $\varepsilon=0.4$.
+
+Another interesting property that existed in the previous graph, but is more
+pronounced here is the strong correlation between number of membership queries
+and counter-example queries, shown by the apparent congruence in the graphs.
+
+### $a^{n}b^{m}c^{n+m}$ {#sec:addition}
 
 \vbox{\centering
   \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{addition}
 }
 
-words
+Sample size $n=40$.
 
-### Balanced Parentheses 1
+The language being learnt here is an encoding of addition, and can, in some ways
+be seen as a generalisation of the previous language, which can be thought of as
+simulating counting.
+
+We were unable to produce all the figures for this test, as \textit{reset
+  learn}'s performance deteriorated too rapidly. At $\varepsilon=0.1$ it was
+already using 9797 membership queries on average compared to \textit{modal
+  learn}'s 644 queries. Extrapolating along an exponential trendline (Given by
+$y=104.8e^{45.97x}$), the predicted number of queries for $\varepsilon=0.15$
+would have been approximately $10^5$.
+
+What little data that could be collected seems to tentatively suggest that in
+this case, \textit{modal learn} offers a constant factor improvement in the
+\textit{exponent}, seen most clearly in the log graph for counter-examples,
+which shows a shallower gradient in the red line. This represents asymptotically
+more of an improvement than in the $a^nb^n$ test, lending credence to the fact
+that \textit{modal learn}'s upper bound relies heavily on the language being
+learnt.
+
+### Balanced Parentheses 1 {#sec:parens1}
 
 \vbox{\centering
   \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{parens1}
 }
 
-words
+Sample size $n=30$.
+
+Balanced Parentheses are another mainstay of context-free language examples. In
+this variant, the target grammar is in CRF form, and so requires some redundant
+non-terminals, which should effect the algorithms' performance.
+
+Notice that for $\varepsilon\geq0.2$ the performance of the two algorithms
+diverges, with the blue line steeper from this point than the red. This is a
+clearer indication that \textit{modal learn} is offering a constant factor
+improvement in the exponent than in Test\ \ref{sec:addition}, where data was
+severely limited.
+
+As in previous tests, we see a strong exponential trend for \textit{reset learn}
+and a correlation between membership queries and counter-example
+queries.
 
 ### Balanced Parentheses 2
 
@@ -2004,7 +2066,27 @@ words
   \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{parens2}
 }
 
-words
+Sample size $n=30$.
+
+This test uses the same target language as in Test\ \ref{sec:parens1}, but the
+target grammar is in loosened CRF and so is noticeably smaller.
+
+In this case, performance diverges at a much lower error of $0.05$. A possible
+explanation of this is that the more compact representation of this grammar
+leaves less room for mistakes: The proportion of possible grammars that have the
+desired language is lower here than in the previous example, so there are fewer
+opportunities to recover from errors. In addition, we do not see the same
+shallower gradient in the log graph, although there is still an improvement. So
+not only does the target language affect \textit{modal learn}'s benefit, but so
+does the structure of the target grammar.
+
+Moreover, in this test, for larger error values, both algorithms ask the user
+fewer membership queries than counter-example queries, whereas in the previous
+balanced parentheses test, this was not true. The reason for this could stem
+from the fact that there are fewer non-terminals in the target grammar in this
+test. This results in fewer possible rules, which means that when generating
+samples, the same rules are used more often, and this has the eventual result of
+giving us more cache hits on our stored membership query responses.
 
 ### Mathematical Expressions
 
@@ -2012,15 +2094,26 @@ words
   \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{maths}
 }
 
-words
+Sample size $n=60$.
+
+This language approximates a more practical example of a context-free language.
+It is also more taxing for learning algorithms as it incorporates both a nested
+parenthesis structure, as well a list based structure in the form of operator
+chains.
+
+Once again, running \textit{reset learn} quickly became intractable, with no
+values for $\varepsilon>0.05$. Comparatively, \textit{modal learn} performs
+better. So much so that we are able to run it for $\varepsilon=0.1$ to find
+that while it still requires fewer queries than \textit{reset learn} when
+$\varepsilon=0.05$, it still requires 1166 membership queries (on average).
 
 # Discussion
 
-Analysis seems to suggest that our changes yield improvement by a constant scale
-factor. This, by definition, does not change the asymptotic complexity, but as
-the number of queries the algorithm needs increases exponentially with the error
-of the oracle, this represents a real practical benefit. For complex grammars,
-and most practical uses, the number of queries is still perhaps too high, but in
+Analysis suggests that \textit{modal learn} consistently outperforms
+\textit{reset learn}, which is itself an improvement over Angluin's original
+algorithm. These benefits do not translate to a change in the asymptotic
+complexity, but do represent a real practical benefit. For complex grammars, and
+most practical uses, the number of queries is still perhaps too high, but in
 this section we discuss some ways we can improve this state of affairs, and some
 other avenues worth exploring.
 
