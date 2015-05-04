@@ -1974,7 +1974,14 @@ both a log scale (left) and a linear scale (right).
   \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{ab_plus}
 }
 
-Sample size $n=30$.
+\vbox{
+  \textbf{Target Grammar}
+  \begin{align*}
+    S \rightarrow S S \mid ab
+  \end{align*}
+}
+
+\textbf{Sample size} $n=30$.
 
 This language was chosen as an example of a trivial regular set, representing
 the language of finite non-empty sequences of $ab$. We did not use $L=a^+$
@@ -1994,7 +2001,15 @@ changes in user error.
   \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{anbn}
 }
 
-Sample size $n=30$.
+\vbox{
+  \textbf{Target Grammar}
+  \begin{align*}
+    S^{\phantom{\prime}} & \rightarrow a S^\prime
+    \\ S^\prime & \rightarrow b \mid S b
+  \end{align*}
+}
+
+\textbf{Sample size} $n=30$.
 
 If $(ab)^+$ represents the trivial regular set, then $a^nb^n$ can be considered
 the trivial context-free set: Strings with a sequence of $a$'s followed by the
@@ -2017,7 +2032,17 @@ and counter-example queries, shown by the apparent congruence in the graphs.
   \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{addition}
 }
 
-Sample size $n=40$.
+\vbox{
+  \textbf{Target Grammar}
+  \begin{align*}
+    S^{\phantom{+}} & \rightarrow a S^+ \mid b B^+
+    & S^+ & \rightarrow S c \mid c
+    \\ B^{\phantom{+}} & \rightarrow b B^+
+    & B^+ & \rightarrow B c \mid c
+  \end{align*}
+}
+
+\textbf{Sample size} $n=40$.
 
 The language being learnt here is an encoding of addition, and can, in some ways
 be seen as a generalisation of the previous language, which can be thought of as
@@ -2044,7 +2069,16 @@ learnt.
   \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{parens1}
 }
 
-Sample size $n=30$.
+\vbox{
+  \textbf{Target Grammar}
+  \begin{align*}
+    S & \rightarrow L R \mid S S
+    \\ L & \rightarrow (\ \mid L S \mid S L
+    \\ R & \rightarrow\ ) \mid R S \mid S R
+  \end{align*}
+}
+
+\textbf{Sample size} $n=30$.
 
 Balanced Parentheses are another mainstay of context-free language examples. In
 this variant, the target grammar is in CRF form, and so requires some redundant
@@ -2066,7 +2100,15 @@ queries.
   \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{parens2}
 }
 
-Sample size $n=30$.
+\vbox{
+  \textbf{Target Grammar}
+  \begin{align*}
+    S^{\phantom{\prime}} & \rightarrow (\ S^\prime \mid S S
+    \\ S^\prime & \rightarrow S\ ) \mid\ )
+  \end{align*}
+}
+
+\textbf{Sample size} $n=30$.
 
 This test uses the same target language as in Test\ \ref{sec:parens1}, but the
 target grammar is in loosened CRF and so is noticeably smaller.
@@ -2094,7 +2136,16 @@ giving us more cache hits on our stored membership query responses.
   \includegraphics[width=\textwidth,natwidth=7015,natheight=5669]{maths}
 }
 
-Sample size $n=60$.
+\vbox{
+  \textbf{Target Grammar}
+  \begin{align*}
+    S_{\phantom{1}} & \rightarrow x \mid n \mid x S_1 \mid n S_1 \mid (\ S_2
+    \\ S_1 & \rightarrow +\ S \mid \times\ S
+    \\ S_2 & \rightarrow S\ )
+  \end{align*}
+}
+
+\textbf{Sample size} $n=60$.
 
 This language approximates a more practical example of a context-free language.
 It is also more taxing for learning algorithms as it incorporates both a nested
