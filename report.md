@@ -2262,10 +2262,31 @@ words
 
 ## Representing CFGs {#app:cfg}
 
-<!--
-mention inverted representation,
-and its uses in HornSAT and Best Rules.
--->
+The first representation is designed to make adding and removing rules
+easy. Grammars are stored as multimaps or maps of sets from non-terminals to
+rules. It is used as the internal representation for the learning algorithm, and
+various parsing algorithms. The \texttt{cfg} macro makes specifying grammars for
+testing much easier.
+
+\input{aux/cfg.tex}
+
+For algorithms like \textsc{HornSAT} and \textsc{BestRules} we need to compute,
+given a non-terminal $X$, the sets
+$\{Y:Y\rightarrow\alpha{}X\beta\in\mathcal{R}\}$ and
+$\{Y:Y\rightarrow\alpha{}X\beta\in\mathcal{R}\}$. Both these algorithms make
+heavy use of these sets, so rather than recalculating them every time they are
+needed, we invert the grammar. In the \textit{inverted graph}, we have a map
+from non-terminals to the rules they appear in.
+
+Structural sharing is employed to make sure that if two non-terminals appear in
+the same rule, then they both hold a reference to that rule (as opposed to
+copies of the rule's data). This is so that when traversing the grammar in a
+"bottom-up" fashion, the rule acts as a barrier: We can associate a count with
+each rule $X\rightarrow\alpha$ denoting how many non-terminals in $\alpha$ we
+have visited, only when we have visited all of them can we visit $X$ through
+this rule.
+
+\input{aux/inverted.tex}
 
 ## Representing SCFGs
 
@@ -2293,7 +2314,7 @@ processed-key
 
 ### Best Rules {#app:best-rules}
 
-## Strongly Connected Components {#app:scc}
+### Strongly Connected Components {#app:scc}
 
 words
 
