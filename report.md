@@ -1457,11 +1457,43 @@ assigning probabilities uniformly (Figure\ \ref{list:sc-sample}):
   Figure\ \ref{list:scfg-sample}, is guaranteed to terminate.
 \end{definition}
 
+To know whether an SCFG $G=(N,\Sigma,\mathcal{R},S,p)$ is strongly consistent,
+we check (as follows from the definition) that $\forall X\in
+N.~0\leq\mathbb{E}[L_X] < \infty$ where $L_X=\text{length of derivation starting
+  with }X$. To do so, we define $\mathbb{E}[L_X]$ as a system of linear
+difference equations:
+
+\begin{align*}
+  \text{Let } l_i & = \mathbb{E}[L_{N_i}]
+  \\ M_{ij} & = \sum_{N_i\rightarrow\alpha N_j\beta\in\mathcal{R}}
+  p_{N_i}(\alpha N_j\beta)
+  \\ v_i & = \sum_{\substack{N_i\rightarrow\alpha a\beta\in\mathcal{R}\\
+                   : a\in\Sigma}}
+  p_{N_i}(\alpha a\beta)
+\end{align*}
+\textit{Note that we impose an arbitrary but consistent order over $N$ in order
+  to index vectors and matrices by non-terminals.}
+
+From these definitions we see that:
+\begin{align*}
+  \mathbf{l} & =\mathbf{M}\cdot\mathbf{l} + \mathbf{v}
+  \\ (\mathbf{I} - \mathbf{M})\cdot\mathbf{l} & =\mathbf{v}
+  \\ \mathbf{l} & =(\mathbf{I} - \mathbf{M})^{-1}\cdot\mathbf{v}
+\end{align*}
+
+And can use this information to calculate $\mathbf{l}$ and assert that all its
+values are positive, as a check for strong consistency (Figure\ \ref{list:sc?}).
+
 The grammar is made strongly consistent using gradient descent. First, we check
 whether it is strongly consistent already, if not, we pick the \textit{best
   rules} --- Rules that will reduce the expected word length when favoured ---
 and increase their probability by a fixed scale factor, and repeat
 (Figure\ \ref{list:sc*}).
+
+\begin{figure}[htbp]
+  \caption{The Strong Consistency predicate.}\label{list:sc?}
+  \input{aux/strongly_consistent.tex}
+\end{figure}
 
 \begin{figure}[htbp]
   \caption{Making a grammar strongly consistent}\label{list:sc*}
@@ -1470,9 +1502,14 @@ and increase their probability by a fixed scale factor, and repeat
 
 ### \textsc{BestRules}
 
+\begin{figure}[htbp]
+  \caption{\textsc{BestRules} implementation.}\label{list:best-rules}
+  \input{aux/best_rules.tex}
+\end{figure}
+
 The best rules to promote when trying to reduce the expected word length are the
 ones with the lowest \textit{hop count}. We must pick at least one such rule for
-each non-terminal.
+each non-terminal (Figure\ \ref{list:best-rules}).
 
 \begin{definition}[Hop count]
   Given a rule $X\rightarrow\alpha$, its hop count is the length of the shortest
@@ -1486,12 +1523,10 @@ may pick the rules with the lowest hop count for each non-terminal.
 
 There is an algorithm for this in \cite{Gecse2010490}, however, here I suggest
 an improvement based on a generalisation of Dijkstra's algorithm
-(Algorithm\ \ref{algo:hop-counts}).
+(Algorithm\ \ref{algo:hop-counts}, Figure\ \ref{list:hop}).
 
 \begin{algorithm}[htbp]
-  \caption{Finding the hop counts for non-terminals. See
-    Appendix\ \ref{app:best-rules} for a translation into \textit{Clojure}, along
-    with an implementation of \textsc{BestRules}.}\label{algo:hop-counts}
+  \caption{Finding the hop counts for non-terminals.}\label{algo:hop-counts}
   \begin{algorithmic}
     \Function{HopCounts}{$G=(N,\Sigma,\mathcal{R},S)$}
       \LineComment $C$, the mapping from non-terminals to finalised hop counts.
@@ -1580,6 +1615,12 @@ an improvement based on a generalisation of Dijkstra's algorithm
     \end{enumerate*}
   \end{proof}
 \end{lemma}
+
+\begin{figure}[htbp]
+  \caption{Implementation of \textsc{HopCounts} in
+    \textit{Clojure}}\label{list:hop}
+  \input{aux/hop.tex}
+\end{figure}
 
 \begin{theorem}[Correctness of \textsc{HopCounts}]
   \textsc{HopCounts} terminates, producing a mapping from non-terminals to their
@@ -2290,10 +2331,22 @@ this rule.
 
 ## Representing SCFGs
 
-words
-<!--
-Mention mutable SCFGs
--->
+The primary representation of SCFGs has a very similar structure to that of
+CFGs: A nested map from non-terminals, to rules and from rules to probabilities.
+These are constructed from an existing CFG, initially just by assigning
+probabilities uniformly between rules with the same non-terminals
+(\texttt{cfg->scfg}). SCFGs can also be converted \textit{back} into CFGs
+(\texttt{scfg->cfg}), and can be filtered to only contain rules given by a
+CFG (\texttt{slice}).
+
+\input{aux/scfg.tex}
+
+We also use a mutable variant of the SCFG data structure when making the grammar
+strongly consistent. This allows us to split up a grammar into its strongly
+connected components, modify their probabilities, and have the original
+grammar's probabilities change.
+
+\input{aux/mut_scfg.tex}
 
 ## \textsc{HornSAT} {#app:horn-sat}
 
@@ -2310,11 +2363,7 @@ reduxn-key / associate-reduxn
 processed-key
 -->
 
-## Ancillary Definitions for Strong Consistency {#app:ancillary-sc}
-
-### Best Rules {#app:best-rules}
-
-### Strongly Connected Components {#app:scc}
+## Strongly Connected Components {#app:scc}
 
 words
 
