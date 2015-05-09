@@ -2433,7 +2433,15 @@ functonal style.
 
 ## Ancillary Definitions for Test Harness {#app:ancillary-harness}
 
-words
+The Test Harness augments the existing membership and counter-example queries
+to gather information and change their behaviour. \texttt{inject-counter}
+associates a counter with the predicate to keep track of how many times it has
+been called, \texttt{inject-printer} prints the arguments and return values with
+a pretty printing function, if verbose testing is enabled, and
+\texttt{inject-error} introduces error into the return value of boolean
+predicates at a specified rate.
+
+\input{aux/ancillary_harness.tex}
 
 # Appendix B <!-- Tests -->
 
