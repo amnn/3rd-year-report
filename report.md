@@ -10,7 +10,6 @@ abstract: |
   the algorithm itself to take advantage of restrictions that we can afford to
   make, and improving performance when faced with errors.
 ...
-\pagebreak
 
 ```{.clojure}
 ```
