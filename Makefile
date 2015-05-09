@@ -8,7 +8,7 @@ LISTINGS = prune.md reach.md contribution.md cyk.md parse_trees.md learn.md \
 		ancillary_harness.md harness_specialise.md cfg.md inverted.md \
 		scfg.md mut_scfg.md hop.md best_rules.md sat.md \
 		earley_reset.md earley_classify.md earley_shift.md \
-		earley_reduce.md earley_predict.md earley_processed.md
+		earley_reduce.md earley_predict.md earley_processed.md scc.md
 
 DIAGRAMS = parens1.png parens2.png ab_plus.png anbn.png addition.png maths.png
 

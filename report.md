@@ -2413,8 +2413,8 @@ is then used when reducing an item, to know what its yield was.
 
 When an item is reduced, we must find all the items that were waiting for it to
 be reduced so that they could progress. Each of these waiting items is shifted,
-and then added to the item queue for the next index. We also update the
-completed item set: We can use this set to produce the language sequence.
+and then added to the item queue for the next index. We also keep track of which
+items were completed at which indices.
 
 \input{aux/earley_predict.tex}
 
@@ -2426,7 +2426,10 @@ be found easily.
 
 ## Strongly Connected Components {#app:scc}
 
-words
+An implementation of Kosaraju's Strongly Connected Components algorithm, in a
+functonal style.
+
+\input{aux/scc.tex}
 
 ## Ancillary Definitions for Test Harness {#app:ancillary-harness}
 
