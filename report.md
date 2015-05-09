@@ -2444,7 +2444,49 @@ predicates at a specified rate.
 
 # Appendix B <!-- Tests -->
 
-test
+## \texttt{cfg.cfg-test}
+
+\input{aux/cfg_test.tex}
+
+## \texttt{cfg.coll-util-test}
+
+\input{aux/coll_util_test.tex}
+
+## \texttt{cfg.graph-test}
+
+\input{aux/graph_test.tex}
+
+## \texttt{cfg.hop-test}
+
+\input{aux/hop_test.tex}
+
+## \texttt{cfg.invert-test}
+
+\input{aux/invert_test.tex}
+
+## \texttt{cfg.lang-test}
+
+\input{aux/lang_test.tex}
+
+## \texttt{cfg.null-test}
+
+\input{aux/null_test.tex}
+
+## \texttt{cfg.prune-test}
+
+\input{aux/prune_test.tex}
+
+## \texttt{cfg.sat-test}
+
+\input{aux/sat_test.tex}
+
+## \texttt{cfg.scfg-test}
+
+\input{aux/scfg_test.tex}
+
+## \texttt{cfg.tokenize-test}
+
+\input{aux/tokenize_test.tex}
 
 \vbox{
   %TC:endignore
