@@ -74,7 +74,7 @@ operation is a query to the user.
 
 \vbox{
   \begin{definition}[alphabet]
-    An \textit{alphabet} is a set of symbols, $\Sigma$.
+    An \textit{alphabet} is a finite set of symbols, $\Sigma$.
   \end{definition}
 }
 
@@ -127,7 +127,7 @@ Suppose, w.r.t. grammar $G$ we define the relations
   \alpha X \gamma &\Rightarrow \alpha\beta\gamma
   &\iff X \rightarrow \beta \in \mathcal{R}
   \tag*{$\forall\alpha,\beta,\gamma\in{(\Sigma\cup{}N)}^{*}$} \\
-  w X \gamma &\Rightarrow_l \alpha\beta\gamma
+  w X \gamma &\Rightarrow_l w\beta\gamma
   &\iff X \rightarrow \beta \in \mathcal{R}
   \tag*{$\forall{}w\in\Sigma^*,\beta,\gamma\in{(\Sigma\cup{}N)}^{*}$}
 \end{align*}
@@ -348,7 +348,7 @@ operations.
   \small{\cite{net_mikera_vectorz_clj}}}
 
 \textit{Clojure} wrapper over the \textit{Vectorz} Java library. This provides a
-high performance implementation of the \texttt{core.matrix} protcols for
+high performance implementation of the \texttt{core.matrix} protocols for
 arbitrary N-dimensional arrays.
 
 ## Architecture
@@ -358,7 +358,7 @@ learning algorithms, making experimentation with parameters easier.
 
 \textit{Clojure} is a dynamically typed language, so verification will be, for
 the most part, in the form of unit tests. The tests for each module can be found
-in the Appendices.
+in Appendix\ \ref{app:tests}.
 
 # Survey {#survey}
 
@@ -503,8 +503,8 @@ It is interesting to note that, although it is not explicitly stated in
 algorithm favours \textit{reversible} grammars, as defined
 in\ \cite{Sakakibara199223}. This does not mean that the output of the algorithm
 is guaranteed to be reversible, however. Indeed, it is possible to violate
-condition (2) of reversibility when performing a \textsc{Merge}, although the
-\textsc{Extract} procedure is designed precisely to combat this.
+condition (2) of reversibility when performing an \textsc{Extract}, although the
+\textsc{Merge} procedure is designed precisely to combat this.
 
 # Angluin's K-Bounded Algorithm {#angluin}
 
@@ -535,12 +535,12 @@ undecidable. These queries come in one of two forms:
 
 \begin{description}
   \item[Non-Terminal Membership] Given some non-terminal $X \in N$ and a string
-    $w \in \Sigma^*$ does $N \Rightarrow^* w$ hold in $G$? In other words, in
-    the grammar we have in mind, is it possible to derive $w$ from $N$ through
-    rules in $\mathcal{R}$. The response to this is simply a truth value.
+    $w \in \Sigma^*$ does $X \Rightarrow^* w$ hold in $G$? In other words, in
+    the grammar we have in mind, is it possible to derive $w$ from $X$ through
+    rules in $\mathcal{R}$. The response to this is a truth value.
 
   \item[Equivalence] Given some grammar $G^\prime$, is $L(G) = L(G^\prime)$? The
-    oracle responds with \textit{true} if the assertion holds, or otherwise,
+    oracle responds with \textbf{true} if the assertion holds, or otherwise,
     produces a witness $w \in \Sigma^*$ to $L(G) \not= L(G^\prime)$.
 \end{description}
 
@@ -591,7 +591,7 @@ Algorithms\ \ref{algo:diagnose},\ \ref{algo:candidate}.
     rule.}
   \LineComment{\textbf{output} $G^\prime$, a grammar accepting the target
     language.}
-  \State $\mathcal{R}^\prime \gets \emptyset$
+  \State $\mathcal{R}^\prime \gets \varnothing$
   \State $\mathbf{let}~G^\prime = (N,\Sigma,\mathcal{R}^\prime,S)$
   \While{$\lnot\Call{Equal$^\ast$}{G^\prime}$}
     \State $c \gets \Call{Counter-example$^\ast$}{G^\prime}$
@@ -640,7 +640,7 @@ Algorithms\ \ref{algo:diagnose},\ \ref{algo:candidate}.
   \LineComment{\textbf{input} $k$, A bound on the number of non-terminals in a
     rule.}
   \LineComment{\textbf{output} A set of candidate productions}
-  \State $C \gets \emptyset$
+  \State $C \gets \varnothing$
   \ForAll{substrings $y$ of $w$}
     \For{$m = 0 \ldots k$}
       \ForAll{$y = x_0y_0 \ldots x_my_mx_{m+1}$}
@@ -669,7 +669,7 @@ is a $k$-bounded grammar $G=(N,\Sigma,\mathcal{R},S)$ s.t. $L(G) = L$.
 
 \begin{theorem}
   For any $n \in \mathbb{N}$, there is a language, $L$ s.t. for any grammar
-  $G = (N,\Sigma,\mathcal{R},S)$ where $L(G) = G$, $\lvert N \rvert > n$.
+  $G = (N,\Sigma,\mathcal{R},S)$ where $L(G) = L$, $\lvert N \rvert > n$.
 
   \begin{proof}[Proof by Contradiction]
     Consider some $n \in \mathbb{N}$, $L=\{\alpha_i^k:0\leq i\leq n, k\geq 0\}$
@@ -730,7 +730,7 @@ finding grammars solely in this form? Theorem\ \ref{thm:2bounded} shows us that
 doing so would remove the need for the parameter $k$: It would always be 2. This
 is not to say that, when before, we called $\textsc{Learn}(N,\Sigma,S,k)$,
 instead we can always call $\textsc{Learn}(N,\Sigma,S)$ to learn the same
-language, it means instead that for \textit{some} $N^\prime$, we can call
+language. It means instead that for \textit{some} $N^\prime$, we can call
 $\textsc{Learn}(N^\prime,\Sigma,S)$. The question as to which $N^\prime$ remains
 non-trivial and --- to maintain focus --- is out of the scope of this project,
 however we touch on some possibilities in Section\ \ref{sec:choosing-nts} of the
@@ -1128,7 +1128,7 @@ parses for any one string.
 
 With the framework of the algorithm implemented, all that remains is to provide
 an interface to the user to act as oracle, in the form of implementations of the
-$\textsc{counter*}^*$ and $\textsc{member*}^*$ functions, which we will cover in
+$\textsc{Counter}^*$ and $\textsc{Member}^*$ functions, which we will cover in
 the coming sections.
 
 # Counter-examples from Samples {#sec:counter-samples}
@@ -1276,6 +1276,11 @@ matched.
   \end{align*}
 \end{figure}
 
+\begin{figure}[htbp]
+  \caption{Implementation of language sequence.}\label{list:lang-seq}
+  \input{aux/lang_seq.tex}
+\end{figure}
+
 In our implementation (Figure\ \ref{list:earley-parser}), we will represent the
 state sets $S_k$ as queues (Figure\ \ref{list:earley-states}). We will create
 them in increasing order of $k$, being careful not to re-add items that we have
@@ -1284,15 +1289,11 @@ cause an infinite loop. We will also avoid storing all previous state
 sets. Instead it suffices for us to keep track of the state set we are working
 on, and all previous \textit{reduction mappings} $R_j$ from non-terminals $X$,
 to items $(Y\rightarrow\alpha\bullet X\beta, i)\in S_j$, waiting for reductions
-of items with rules from $X$ starting at $k$. Then, when we perform a
+of items with rules from $X$ starting at $j$. Then, when we perform a
 \textit{reduction} of an item $(X\rightarrow\gamma\bullet,j)$, we simply take
-all the items in $R_j(X)$, advance their rule position, and add them to $S_k$,
-this also saves us the trouble of searching $S_j$ for rules of the correct form.
-
-\begin{figure}[htbp]
-  \caption{Implementation of language sequence.}\label{list:lang-seq}
-  \input{aux/lang_seq.tex}
-\end{figure}
+all the items in $R_j(X)$, advance their rule position, and add them to the next
+state set. This also saves us the trouble of searching $S_j$ for rules of the
+correct form.
 
 From this implementation of the recogniser, we can create a routine that
 generates all strings in the language (Figure\ \ref{list:lang-seq}) with the
@@ -2235,9 +2236,13 @@ the burden.
 One possible avenue is to take advantage of the regular binary tree structure of
 parse trees from CRF grammars. Given a corpus of strings known to be in the
 language, we can have the user recursively split the strings in half, to give a
-parse tree. From these parse trees, we would not only get the set of
-non-terminals, but an indication of which rules to favour, which we can seed our
-classifier with, to speed up the learning process.
+parse tree. At each split the user would label the string being split with a
+name, which would eventually become a non-terminal. By examining the names of
+strings along with the names given to their substrings when split, we can not
+only recover a set of possible non-terminals, but also a set of possible rules,
+which we may seed the learning algorithm with. Note the similarity between this
+approach and \cite{Sakakibara199223}, where the user must provide unlabeled
+parse trees.
 
 ## Component Analysis
 
@@ -2272,13 +2277,12 @@ replacing non-terminals that produce only one terminal with the terminal itself,
 but we could go further.
 
 Consider the grammars of programming languages which can be split up into
-distinct components that live in their own strongly connected component. For
-example, it is quite common in imperative languages, for statements to contain
-expressions, but not vice versa. In cases such as these, we could lessen the
-load on the algorithm by learning these two structures separately. When learning
-the structure of a statement, we use a terminal symbol to represent where an
-expression may appear, and when we join the structures together, this becomes a
-non-terminal.
+distinct strongly connected components. For example, it is quite common in
+imperative languages for statements to contain expressions, but not vice
+versa. In cases such as these, we could lessen the load on the algorithm by
+learning these two structures separately. When learning the structure of a
+statement, we use a terminal symbol to represent where an expression may appear,
+and when we join the structures together, this becomes a non-terminal.
 
 The difficulty in implementing this, is that whilst the strong consistency
 algorithm could calculate the SCCs of the grammar it is given, we do not have a
@@ -2298,7 +2302,9 @@ words
   %TC:ignore
 }
 
-# Appendix A <!-- Subsidiary Listings -->
+\appendix
+
+# Appendix <!-- Subsidiary Listings -->
 
 ## Representing CFGs {#app:cfg}
 
@@ -2442,7 +2448,7 @@ predicates at a specified rate.
 
 \input{aux/ancillary_harness.tex}
 
-# Appendix B <!-- Tests -->
+# Tests {#app:tests}
 
 ## \texttt{cfg.cfg-test}
 
