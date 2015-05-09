@@ -186,8 +186,8 @@ $X\rightarrow\alpha\in\mathcal{R}$.
 }
 
 ## Stochastic Context-Free Grammars
-\textit{The definitions from here onwards can be found explained in greater
-  detail in the appropariate sections of\ \cite{Manning:1999:FSN:311445}.}
+\textit{The definitions from here onward can be found explained in greater
+  detail in the appropriate sections of\ \cite{Manning:1999:FSN:311445}.}
 
 \vbox{
   \begin{definition}[stochastic context-free grammar]
@@ -304,7 +304,7 @@ The implementation of this project will be written in \textit{Clojure}, a LISP
 dialect that runs on the JVM. I chose \textit{Clojure} for its
 
  * Strong but practical focus on functional programming paradigms.
- * Access to the large echosystem of Java libraries.
+ * Access to the large ecosystem of Java libraries.
  * Read-Eval-Print Loop (REPL), which affords an interactive development
    workflow.
  * Macro system, which allows for the creation of embedded Domain-Specific
@@ -484,7 +484,7 @@ moves through the search space by transforming grammars in its frontier using
 one of two operations:
 \begin{description}
   \item[Extract] takes a substring $\alpha$ that occurs in multiple rules,
-    replaces its occurence in those rules by a fresh non-terminal $A$, to which
+    replaces its occurrence in those rules by a fresh non-terminal $A$, to which
     rule $A \rightarrow \alpha$ has been added.
 
   \item[Merge] if two non-terminals $A, B$ occur in similar contexts within the
@@ -1041,7 +1041,7 @@ can be taken.
 
 This generalisation is relevant to us because it allows us to define a function
 that returns all the parse trees of $G$ that yield $w$, which we can give to
-our \textsc{Diagnose} routine in the event of a false-positive conter-example.
+our \textsc{Diagnose} routine in the event of a false-positive counter-example.
 The needed specialisation is given in (Figure\ \ref{list:parse-trees}).
 
 \begin{figure}[htbp]
@@ -1790,7 +1790,7 @@ We implement this as an alternative to \textit{Clojure's} standard
 \texttt{memoize} function (Figure\ \ref{list:soft-memo}), which we were using
 previously (Figure\ \ref{list:k-bounded}). To use it we must also generalise the
 interface exposed to the learning algorithm so that the memoized function can
-control how it is resetted between rounds (Figure\ \ref{list:soft-k-bounded}).
+control how it is reset between rounds (Figure\ \ref{list:soft-k-bounded}).
 
 \begin{figure}[htbp]
   \caption{$\textsc{Learn}^*$ implementation using a generalised interface to
@@ -2092,7 +2092,7 @@ simulating counting.
 We were unable to produce all the figures for this test, as \textit{reset
   learn}'s performance deteriorated too rapidly. At $\varepsilon=0.1$ it was
 already using 9797 membership queries on average compared to \textit{modal
-  learn}'s 644 queries. Extrapolating along an exponential trendline (Given by
+  learn}'s 644 queries. Extrapolating along an exponential trend-line (Given by
 $y=104.8e^{45.97x}$), the predicted number of queries for $\varepsilon=0.15$
 would have been approximately $10^5$.
 
@@ -2286,7 +2286,7 @@ and when we join the structures together, this becomes a non-terminal.
 
 The difficulty in implementing this, is that whilst the strong consistency
 algorithm could calculate the SCCs of the grammar it is given, we do not have a
-grammar, and while in certain situations, dependancies of this kind may be part
+grammar, and while in certain situations, dependencies of this kind may be part
 of the specification, for other grammars, we can only guess at what the SCCs
 could be. In either case, the job of identifying SCCs lies with the user.
 
@@ -2432,7 +2432,7 @@ be found easily.
 ## Strongly Connected Components {#app:scc}
 
 An implementation of Kosaraju's Strongly Connected Components algorithm, in a
-functonal style.
+functional style.
 
 \input{aux/scc.tex}
 
