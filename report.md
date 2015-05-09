@@ -2379,14 +2379,50 @@ Other than the above omission, the algorithm remains the same:
 
 ## Ancillary Definitions for Earley Parser {#app:ancillary-earley}
 
-<!--
-reset-state
-classify
-shift / perform-shift / enqueue-shift
-perform-reduxns / complete-item
-reduxn-key / associate-reduxn
-processed-key
--->
+Subroutines used by the Earley parser implementation are elucidated here, in
+order of appearance.
+
+\input{aux/earley_reset.tex}
+
+We clear the completed item set so that when we have finished processing this
+index of the token stream, the completed item set will contain the items
+completed just at this index. Similarly, we clear the item queue so that we do
+not pass on items that we have already processed to be dealt with again when
+processing the next index.
+
+\input{aux/earley_processed.tex}
+
+The \textit{processed key} is used to prevent processing the same item twice in
+a single round.
+
+\input{aux/earley_classify.tex}
+
+Classification checks the position of the offset in the Earley item to determine
+what should be done to it next: If it is at the end, then we should
+\textit{reduce} this item. If it is before a terminal, we should \textit{shift}
+over it. And, if it is before a non-terminal, we should \textit{predict} that
+symbol.
+
+\input{aux/earley_shift.tex}
+
+When shifting over a symbol in an item, we not only move the offset one to the
+right, but we also keep track of which tokens were consumed in the shift. This
+is then used when reducing an item, to know what its yield was.
+
+\input{aux/earley_reduce.tex}
+
+When an item is reduced, we must find all the items that were waiting for it to
+be reduced so that they could progress. Each of these waiting items is shifted,
+and then added to the item queue for the next index. We also update the
+completed item set: We can use this set to produce the language sequence.
+
+\input{aux/earley_predict.tex}
+
+The prediction of a non-terminal $N$ always occurs because an item $I$ is
+expecting an $N$ to be parsed within its own body. When such a prediction
+occurs, we associate $I$ with the \textit{reduction key} for $N$, so that when
+an $N$-rule is completed, the items that can shift over an $N$ as a result can
+be found easily.
 
 ## Strongly Connected Components {#app:scc}
 
