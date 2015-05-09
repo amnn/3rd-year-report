@@ -14,7 +14,7 @@
   [sg] (map-v (comp set keys) sg))
 
 (defn rule-p
-  "Given an SCFG `sg` and a rule return its associated probability, or `nil`
+  "Given an SCFG `sg` and a rule return its associated probability, or `0.0`
   if it doesn't exist."
   [sg [lhs & rhs]] (get-in sg [lhs (vec rhs)] 0.0))
 

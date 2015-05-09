@@ -2309,7 +2309,7 @@ words
 ## Representing CFGs {#app:cfg}
 
 The first representation is designed to make adding and removing rules
-easy. Grammars are stored as multimaps or maps of sets from non-terminals to
+easy. Grammars are stored as multimaps or maps from non-terminals to sets of
 rules. It is used as the internal representation for the learning algorithm, and
 various parsing algorithms. The \texttt{cfg} macro makes specifying grammars for
 testing much easier.
@@ -2329,7 +2329,7 @@ the same rule, then they both hold a reference to that rule (as opposed to
 copies of the rule's data). This is so that when traversing the grammar in a
 "bottom-up" fashion, the rule acts as a barrier: We can associate a count with
 each rule $X\rightarrow\alpha$ denoting how many non-terminals in $\alpha$ we
-have visited, only when we have visited all of them can we visit $X$ through
+have visited: only when we have visited all of them can we visit $X$ through
 this rule.
 
 \input{aux/inverted.tex}
