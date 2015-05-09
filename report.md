@@ -2350,7 +2350,32 @@ grammar's probabilities change.
 
 ## \textsc{HornSAT} {#app:horn-sat}
 
-words
+This variant of the \textsc{HornSAT} algorithm is used only on Horn formulae
+derived from grammars, so it is given rules from a grammar as input which it
+interprets as Horn clauses: A rule of the form
+$X\rightarrow{}u_0Y_0u_1Y_1\ldots{}u_kY_ku_{k+1}\in\mathcal{R}.$ is interpreted
+as the clause $Y_0\land\dots\land Y_k\rightarrow X$.
+
+\input{aux/sat.tex}
+
+A consequence of this translation process is that the underlying Horn formula
+can never contain negative literals, and so is trivially satisfied by an
+assignment setting all variables to $\mathbf{true}$. This means we may omit the
+case that a formula might be inconsistent.
+
+Other than the above omission, the algorithm remains the same:
+\begin{itemize*}
+  \item $\mathcal{A}\gets\varnothing$
+  \item $\mathbf{while}~\exists$ unit clause $(\mathbf{true}\rightarrow C)$
+    $\mathbf{do}$
+    \begin{itemize*}
+      \item $\mathcal{A}\gets\mathcal{A}\oplus\{C\mapsto\mathbf{true}\}$
+      \item Remove clauses implying $C$.
+      \item Remove $C$ from all other clauses.
+    \end{itemize*}
+  \item $\mathbf{return}~\mathcal{A}$
+\end{itemize*}
+
 
 ## Ancillary Definitions for Earley Parser {#app:ancillary-earley}
 

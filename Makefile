@@ -6,7 +6,7 @@ LISTINGS = prune.md reach.md contribution.md cyk.md parse_trees.md learn.md \
 		make_strongly_consistent_star.md strongly_consistent.md \
 		enum_sampling.md soft_k_bounded.md soft_memo.md harness.md \
 		ancillary_harness.md harness_specialise.md cfg.md inverted.md \
-		scfg.md mut_scfg.md hop.md best_rules.md
+		scfg.md mut_scfg.md hop.md best_rules.md sat.md
 
 DIAGRAMS = parens1.png parens2.png ab_plus.png anbn.png addition.png maths.png
 
