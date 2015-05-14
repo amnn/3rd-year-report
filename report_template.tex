@@ -53,7 +53,6 @@
 
 \DeclareGraphicsExtensions{.png,.pdf}
 
-\newcommand{\sectionbreak}{\clearpage}
 % TeXCount directives
 
 % Ignore code listings
@@ -213,7 +212,20 @@ $if(abstract)$
 $abstract$
 \end{abstract}
 \pagebreak
+\null
+\thispagestyle{empty}
+\addtocounter{page}{-1}
+\pagebreak
 $endif$
+
+%TC:ignore
+\section{Acknowledgements}
+The success of this project is due in no small part to the guidance of Professor
+Paul Goldberg, to whom I am especially grateful. I would also like to extend my
+sincerest thanks to the faculty and staff responsible for my teaching, during my
+time thus far as an undergraduate in the department, for their wise words and
+patience.
+%TC:endignore
 
 $for(include-before)$
 $include-before$
@@ -232,6 +244,8 @@ $endif$
 $if(lof)$
 \listoffigures
 $endif$
+\newcommand{\sectionbreak}{\clearpage}
+
 $body$
 
 $for(include-after)$

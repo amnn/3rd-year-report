@@ -2307,10 +2307,6 @@ grammar, and while in certain situations, dependencies of this kind may be part
 of the specification, for other grammars, we can only guess at what the SCCs
 could be. In either case, the job of identifying SCCs lies with the user.
 
-# Acknowledgements
-
-words
-
 # References
 
 \bibliography{references}
