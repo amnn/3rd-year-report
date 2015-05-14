@@ -27,6 +27,7 @@ out/%.tex: %.md %_template.tex references.bib
 		--number-sections \
 		--bibliography=references.bib \
 		--natbib \
+		--metadata biblio-style=alpha \
 		$(PARAMS) \
 		-f markdown -t latex \
 		$< -o $@

@@ -2393,7 +2393,7 @@ Other than the above omission, the algorithm remains the same:
     \end{itemize*}
   \item $\mathbf{return}~\mathcal{A}$
 \end{itemize*}
-
+For a more formal treatment, see\ \cite{Dowling1984267}.
 
 ## Ancillary Definitions for Earley Parser {#app:ancillary-earley}
 
