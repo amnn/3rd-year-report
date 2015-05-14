@@ -1883,6 +1883,21 @@ error rate of the owner, and then try to gauge the improvement on this that
   \end{proof}
 \end{lemma}
 
+\begin{definition}[Geometric Distribution]\label{def:geom}
+  A random variable $X$ is distributed geometrically with probability $p$ ---
+  written $X\sim Geo(p)$ --- when $X > 0$ represents the number of Bernoulli
+  trials with probability of success $p$, needed to see one successful trial.
+  \begin{align*}
+    \mathbb{P}(X = k) & = (1-p)^{k-1}p
+    \\ \mathbb{E}[X] & = \sum_{k = 0}^{\infty}k(1-p)^{k-1}p
+    \\ & = -p\frac{\mathrm{d}}{\mathrm{d}q}\sum_{k = 0}^{\infty}q^k
+    \tag{$q = 1 - p$}
+    \\ & = -p\frac{\mathrm{d}}{\mathrm{d}p}\frac{1}{p}
+    \tag{Sum of an infinite Geometric progression.}
+    \\ & = \frac{1}{p}
+  \end{align*}
+\end{definition}
+
 \begin{theorem}[Exponentiality in $\varepsilon$]\label{thm:exp-error}
   $\mathbb{E}[Q]\geq(1-\eta)\exp\left(\varepsilon^{2n}\right)$.
 
@@ -1890,7 +1905,7 @@ error rate of the owner, and then try to gauge the improvement on this that
     Observe that each round of the \textit{reset learn} algorithm is independent
     from the others.
     \begin{enumerate*}
-      \item[$\implies$] $R\sim Geo(p)$
+      \item[$\implies$] $R\sim Geo(p)$ \hfill(Definition\ \ref{def:geom})
       \item[$\implies$] $\mathbb{E}[R] = \frac{1}{p}$
         \begin{flalign*}
           \text{where } p & = \mathbb{P}(\text{Round is successful}) &&
