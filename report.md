@@ -1586,7 +1586,7 @@ an improvement based on a generalisation of Dijkstra's algorithm
   true hope count, $\overline{h}_X$. Proved by induction.
 
   \begin{proof}[Base Case, Terminal Rules]
-    Holds trivially.
+    Holds trivially.\phantom{\qedhere}
   \end{proof}
 
   \begin{proof}[Inductive Step]
@@ -1629,10 +1629,12 @@ an improvement based on a generalisation of Dijkstra's algorithm
   Invariant: Non-terminals in $C$ are mapped to their true hop count.
   \begin{proof}[Initialisation]
     Initially, $C = \varnothing$, so this holds vacuously.
+    \phantom{\qedhere}
   \end{proof}
 
   \begin{proof}[Maintenance]
     Follows directly from Lemma\ \ref{lem:hop-count-q-pop}.
+    \phantom{\qedhere}
   \end{proof}
 
   \begin{proof}[Termination]
